@@ -1,0 +1,11 @@
+DEVELOPMENT:
+  DATABASE_URI: "mssql+pyodbc://sa:test123@DESKTOP-QF7OOTB/InventoryManagement?driver=ODBC+Driver+17+for+SQL+Server"
+
+TEST:
+  DATABASE_URI: ''
+
+STAGING:
+  DATABASE_URI: ''
+
+PRODUCTION:
+  DATABASE_URI: ''
