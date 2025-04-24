@@ -19,7 +19,7 @@ export default {
 </style> -->
 
 <template>
-  <div class="bg-gray-100 min-h-screen pt-20">
+  <div class=" bg-black min-h-screen pt-20">
     <HeaderBar />
     <router-view /> <!-- Every page will render here -->
   </div>
@@ -27,7 +27,7 @@ export default {
 
 <script setup>
 import HeaderBar from '@/components/HeaderBar.vue'
-
+import './assets/css/output.css'
 </script>
 
 <style>

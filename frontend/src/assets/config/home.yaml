@@ -1,0 +1,40 @@
+home:
+  header:
+    companyName: "NOx組付け工程在庫管理システム"
+    page01: "リアルタイム中間在庫画面"
+    page02: "リアルタイム棚札ステータス"
+    page03: "リアルタイム中間在庫余力日数"
+    page04: "中間在庫推移"
+    page05: "汎用テーブル表示"
+    page06 : "ヘルプ"
+  title:
+    updatedate: "最終更新日 :"
+    updateFrequency: "更新頻度 :"
+  filter:
+    search: "絞込み検索"
+    manufacture: "メーカー"
+    productNumber: "品番"
+    ShippingClassification: "出荷区分"
+    csv: "csv出力"
+    reset: "リセット"
+  table:
+    headers:
+      totalProducts: "工程合計"
+      manufacture: "メーカー"
+      ASSY_Part_Number: "ASSY品番"
+      SUBASSY_Part_Number: "SUBASSY品番"
+      Shipping_Classification: "出荷区分"
+      Airtightness_Inspection: "気密検査"
+      SCU: "SCU"
+      Water_Vapor_Test: "水蒸気検査"
+      Characteristic_Inspection: "特性検査"
+      Characteristic_Inspection_Fractional_Items: "特性検査 識数品"
+      Accessories: "アクセサリ"
+      FA: "FA"
+      FA_Fractional_Items: "FA識数品"
+      Visual_Inspection: "外観検査"
+      total: "品番合計"
+
+
+
+

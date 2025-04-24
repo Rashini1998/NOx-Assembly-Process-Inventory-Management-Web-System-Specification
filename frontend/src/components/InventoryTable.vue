@@ -1,9 +1,9 @@
 <template>
-  <table class="w-full border-collapse table-auto text-sm border-gray-300">
+  <table class="w-full border-collapse table-auto text-sm border-gray-300 bg-black">
     <thead>
       <!-- Total Row -->
       <tr class="text-black font-bold text-center " style="background-color:rgb(212 212 216);">
-        <th class="px-2 py-1 border" style="background-color: rgb(251 191 36);" colspan="4">工程合計</th>
+        <th class="px-2 py-1 border" style="background-color: rgb(251 191 36);" colspan="4">{{ home.table.headers.totalProducts }}</th>
         <th class="px-2 py-1 border">{{ total.airtightness }}</th>
         <th class="px-2 py-1 border">{{ total.scu }}</th>
         <th class="px-2 py-1 border">{{ total.waterVapor }}</th>
@@ -18,20 +18,20 @@
 
       <!-- Column Headers -->
       <tr class="bg-gray-700 text-black text-center" style="background-color: rgb(163 163 163);">
-        <th class="px-2 py-1 border ">メーカー</th>
-        <th class="px-2 py-1 border">ASSY品番</th>
-        <th class="px-2 py-1 border">SUBASSY品番</th>
-        <th class="px-2 py-1 border">出荷区分</th>
-        <th class="px-2 py-1 border">気密検査</th>
-        <th class="px-2 py-1 border">SCU</th>
-        <th class="px-2 py-1 border">水蒸気検査</th>
-        <th class="px-2 py-1 border">特性検査</th>
-        <th class="px-2 py-1 border">特性検査 識数品</th>
-        <th class="px-2 py-1 border">アクセサリ</th>
-        <th class="px-2 py-1 border">FA</th>
-        <th class="px-2 py-1 border">FA識数品</th>
-        <th >外観検査</th>
-        <th  style="background-color:rgb(251 191 36);">品番合計</th>
+        <th class="px-2 py-1 border ">{{ home.table.headers.manufacture }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.ASSY_Part_Number }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.SUBASSY_Part_Number }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.Shipping_Classification }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.Airtightness_Inspection }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.SCU }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.Water_Vapor_Test }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.Characteristic_Inspection }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.Characteristic_Inspection_Fractional_Items }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.Accessories }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.FA }}</th>
+        <th class="px-2 py-1 border">{{ home.table.headers.FA_Fractional_Items }}</th>
+        <th >{{ home.table.headers.Visual_Inspection }}</th>
+        <th  style="background-color:rgb(251 191 36);">{{ home.table.headers.total }}</th>
       </tr>
     </thead>
     <tbody>
@@ -40,8 +40,10 @@
   </table>
 </template>
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import TableRow from './TableRow.vue'
+import homeData from '@/assets/config/home.yaml'
+
 
 const props = defineProps({
   data: {
@@ -78,4 +80,5 @@ const total = computed(() => {
     return acc
   }, initial)
 })
+const home = ref(homeData.home)
 </script>

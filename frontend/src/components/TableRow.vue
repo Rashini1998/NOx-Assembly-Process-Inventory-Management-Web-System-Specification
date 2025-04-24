@@ -1,6 +1,6 @@
 <template>
     <tr class="text-center border-t border-gray-200 text-sm" style="background-color:rgb(212 212 212);">
-      <td class="py-2 px-1 text-left">
+      <td class="py-2 px-3 text-left">
         <div class="flex items-center space-x-1">
           <img :src="status" alt="status" class="h-4 w-4"  />
           <span>{{ row.manufacturer }}</span>
@@ -23,7 +23,7 @@
   </template>
   
   <script setup>
-  import status from '@/assets/status-icon.png'
+  import status from '@/assets/images/status-icon.png'
   import { computed } from 'vue';
 
   const props=defineProps({

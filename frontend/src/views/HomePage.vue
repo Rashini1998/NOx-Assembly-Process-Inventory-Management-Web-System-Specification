@@ -1,13 +1,17 @@
 <template>
-  <div class="bg-gray-100 min-h-screen pt-20">
-    <div class="bg-black shadow-md py-4 px-6">
+  <!-- <div class="bg-gray-100 min-h-screen pt-20"> -->
+  <div class="min-h-screen">
+    <div class="bg-black shadow-md py-4 px-4">
       <TitleBar />
     </div>
 
     <!-- Filter/Search Bar -->
-    <div class="bg-black shadow-md py-4 px-6">
+    <div class="bg-black shadow-md">
       <!-- <FilterBar @search="handleSearch" @export="handleExport" /> -->
-      <FilterBar @search="handleSearch" @export="exportToCSV" />
+      <FilterBar @search="handleSearch" @export="exportToCSV" @update-manufacturer="selectedManufacturer = $event"
+        @update-product-number="selectedProductNumber = $event" @update-classification="selectedClassification = $event"
+        :manufacturers="uniqueManufacturers" :productNumbers="uniqueProductNumbers"
+        :classifications="uniqueClassifications" />
 
     </div>
 
@@ -27,72 +31,31 @@ import FilterBar from '@/components/FilterBar.vue'
 import InventoryTable from '@/components/InventoryTable.vue'
 import TitleBar from '@/components/TitleBar.vue'
 
-// Dummy data for now (replace with real API or prop later)
-// const tableData = ref([
-//   {
-//     manufacturer: 'GUSTO',
-//     assyNumber: 1144780012,
-//     subassyNumber: '4486000012',
-//     classification: '国内・市販',
-//     airtightness: 0,
-//     scu: 0,
-//     waterVapor: 0,
-//     inspection: 0,
-//     fractional: 0,
-//     accessories: 2,
-//     fa: 13,
-//     faFractional: 0,
-//     visual: 1,
-//   },
-//   {
-//     manufacturer: 'BAMIYAN',
-//     assyNumber: 1144780200,
-//     subassyNumber: '4486000200',
-//     classification: '国内',
-//     airtightness: 0,
-//     scu: 0,
-//     waterVapor: 0,
-//     inspection: 153,
-//     fractional: 8,
-//     accessories: 0,
-//     fa: 29,
-//     faFractional: 18,
-//     visual: 59,
-//   },
-//   {
-//     manufacturer: 'SYABUYO',
-//     assyNumber: 1144785220,
-//     subassyNumber: '4486005220',
-//     classification: '海外',
-//     airtightness: 30,
-//     scu: 0,
-//     waterVapor: 0,
-//     inspection: 0,
-//     fractional: 0,
-//     accessories: 0,
-//     fa: 0,
-//     faFractional: 1,
-//     visual: 0,
-//   },
-
-// ])
-
 const tableData = ref([]);
 const query = ref('')
 
+const selectedManufacturer = ref('')
+const selectedProductNumber = ref('')
+const selectedClassification = ref('')
+
+const uniqueManufacturers = computed(() => [...new Set(tableData.value.map(item => item.manufacturer))])
+const uniqueProductNumbers = computed(() => [...new Set(tableData.value.map(item => item.assyNumber))])
+const uniqueClassifications = computed(() => [...new Set(tableData.value.map(item => item.classification))])
+
+
 //Fetch data from API
-const fetchInventoryData = async()=>{
+const fetchInventoryData = async () => {
   try {
     const response = await axios.get('http://localhost:5000/api/inventory-history')
     tableData.value = response.data
-    
+
   } catch (error) {
-    console.error("Error fetching inventory history",error);
+    console.error("Error fetching inventory history", error);
   }
 }
 
 //Fetch on page load
-onMounted(()=>{
+onMounted(() => {
   fetchInventoryData()
 })
 
@@ -101,10 +64,18 @@ const handleSearch = (val) => {
   query.value = val.toLowerCase()
 }
 const filteredData = computed(() => {
-  return tableData.value.filter((item) =>
-    Object.values(item).some((v) => String(v).toLowerCase().includes(query.value))
-  )
-})
+  return tableData.value.filter((item) => {
+    const matchesSearch = Object.values(item).some((v) =>
+      String(v).toLowerCase().includes(query.value)
+    );
+    const matchesManufacturer = selectedManufacturer.value ? item.manufacturer === selectedManufacturer.value : true;
+    const matchesProduct = selectedProductNumber.value ? item.assyNumber === selectedProductNumber.value : true;
+    const matchesClassification = selectedClassification.value ? item.classification === selectedClassification.value : true;
+
+    return matchesSearch && matchesManufacturer && matchesProduct && matchesClassification;
+  });
+});
+
 
 // export to pdf
 // const handleExport = () => {

@@ -1,15 +1,23 @@
 <template>
     <div class="flex items-center text-white space-x-4 ">
       <div class="font-semibold text-xl pl-2">{{ pageTitle }}</div>
-      <div class="text-lg p-4">Last Updated Date</div>
-      <img :src="refresh" alt="Refresh" class="h-4" />
+      <div class="text-sm p-2">{{ home.title.updatedate }}</div>
+      <div class="text-sm p-2">{{ home.title.updateFrequency }}</div>
+      <button 
+        @click="$emit('')" 
+        class="px-2 py-1 rounded text-white text-sm"
+        :style="{ backgroundColor: pickedColor }">
+        <img :src="refresh"  alt="Refresh"  />
+      </button>
+      
     </div>
   </template>  
   
   <script setup>
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useRoute } from 'vue-router'
-  import refresh from '@/assets/refresh.png'
+  import refresh from '@/assets/images/refresh.png'
+  import homeData from '@/assets/config/home.yaml'
   
   const route = useRoute()
   
@@ -29,5 +37,7 @@
         return 'Hello'
     }
   })
+  const pickedColor = ref('#212121')
+  const home = ref(homeData.home)
   </script>
   

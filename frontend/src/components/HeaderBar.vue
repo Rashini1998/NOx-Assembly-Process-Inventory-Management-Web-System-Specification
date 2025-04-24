@@ -1,42 +1,43 @@
 <template>
-  <header 
-  :style="{ backgroundColor: pickedColor }"
-  class="fixed top-0 left-0 w-full  text-white px-4 py-3 flex items-center justify-between z-50 shadow">
-      <div  class="flex items-center space-x-4 w-1/3">
-        <img :src="logo" alt="Logo" class="h-8 mr-8" />
-        <h4 class="text-sm">NOx組付け工程在庫管理システム</h4>
-      </div>
-      <div  class="flex justify-center w-1/3">
-        <select v-model="selected" @change="navigateToPage"
-          class="bg-black text-white font-semibold border-none px-2 py-1 rounded">
-          <option value="/">リアルタイム中間在庫画面</option>
-          <option value="/status">リアルタイム棚札ステータス</option>
-          <option value="/capacity">リアルタイム中間在庫余力日数</option>
-          <option value="/trend">中間在庫推移</option>
-          <option value="/table">汎用テーブル表示</option>
+  <header :style="{ backgroundColor: pickedColor }"
+    class="fixed top-0 left-0 w-full  text-white px-4 py-3 flex items-center justify-between z-50 shadow">
+    <div class="flex items-center space-x-4 w-1/3">
+      <img :src="logo" alt="Logo" class="h-12 mr-2" />
+      <h4 class="text-sm font-semibold">{{ home.header.companyName }}</h4>
+    </div>
+    <div class="flex justify-center w-1/3">
+      <select v-model="selected" @change="navigateToPage"
+        class="bg-black text-white font-semibold border-none px-2 py-1 rounded">
+        <option value="/">{{ home.header.page01 }}</option>
+        <option value="/status">{{ home.header.page02 }}</option>
+        <option value="/capacity">{{ home.header.page03 }}</option>
+        <option value="/trend">{{ home.header.page04 }}</option>
+        <option value="/table">{{ home.header.page05 }}</option>
+        <option value="/help">{{ home.header.page06 }}</option>
 
-        </select>
-      </div>
-      <div class="flex items-center justify-end space-x-2 w-1/3">
-        <span class="text-sm">{{ now }}</span>
-        <button class="px-2 py-1 rounded text-blue">
-          <img :src="setting" alt="Logo" class="h-0.5 " />
-        </button>
-        <button class="px-2 py-1 rounded text-blue">
-          <img :src="help" alt="Logo" class="h-0.5 mr-8" />
-        </button>
-      </div>
+      </select>
+    </div>
+    <div class="flex items-center justify-end space-x-2 w-1/3">
+      <span class="text-sm">{{ now }}</span>
+      <button class="px-2 py-1 rounded text-blue">
+        <img :src="setting" alt="Setting" class="h-4 " />
+      </button>
+      <button class="px-2 py-1 rounded text-blue" @click="goToHelp">
+        <img :src="help" alt="Help" class="h-4 mr-3" />
+      </button>
+    </div>
 
   </header>
 </template>
 
 <script setup>
-import { ref, onMounted,watch } from 'vue'
-import { useRouter,useRoute } from 'vue-router'
-import logo from '@/assets/logo.png'
-import setting from '@/assets/settings.png'
-import help from '@/assets/help.png'
 
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import logo from '@/assets/images/logo.png'
+import setting from '@/assets/images/settings.png'
+import help from '@/assets/images/help.png'
+import homeData from "@/assets/config/home.yaml"
 
 const router = useRouter();
 const route = useRoute();
@@ -46,20 +47,10 @@ function navigateToPage() {
   router.push(selected.value)
 }
 
-watch(route,(newRoute)=>{
-  selected.value=newRoute.path
+watch(route, (newRoute) => {
+  selected.value = newRoute.path
 })
 
-// const now = ref('')
-// const updateTime = () => {
-//   const date = new Date()
-//   now.value = date.toLocaleString('ja-JP', { hour12: false })
-// }
-
-// onMounted(() => {
-//   updateTime()
-//   setInterval(updateTime, 1000)
-// })
 const now = ref('')
 const updateTime = () => {
   const date = new Date()
@@ -79,4 +70,10 @@ onMounted(() => {
 })
 
 const pickedColor = ref('#212121')
+
+const goToHelp = () => {
+  router.push({ name: 'HelpScreen' });
+};
+
+const home = ref(homeData.home)
 </script>

@@ -1,0 +1,11 @@
+help:
+  title: "ヘルプ"
+  contact_section:
+    title: "お問い合わせ先"
+    office: "所属: ******製造部******課"
+    name: "氏名: ****** ******"
+    email: "メールアドレス: ******@jp.denso.com"
+    phone: "電話番号: **-****-****"
+  document_section:
+    title: "資料"
+    document_path: "資料名: C:\\***\\***\\***\\99_NOx統括工程管理Web\\システム設計書.xlsx"
