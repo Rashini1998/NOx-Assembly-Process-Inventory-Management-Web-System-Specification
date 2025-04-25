@@ -6,7 +6,7 @@ home:
     page03: "リアルタイム中間在庫余力日数"
     page04: "中間在庫推移"
     page05: "汎用テーブル表示"
-    page06 : "ヘルプ"
+    page06 : "画面選択"
   title:
     updatedate: "最終更新日 :"
     updateFrequency: "更新頻度 :"

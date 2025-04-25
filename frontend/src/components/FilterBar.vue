@@ -13,21 +13,18 @@
     <div class="flex flex-grow gap-3">
       <select v-model="manufacturer" @change="$emit('update-manufacturer', manufacturer)"
         :style="{ backgroundColor: pickedColor }" class="w-full px-3 py-1.5 rounded text-white text-sm outline-none ">
-        <!-- <option>{{ home.filter.manufacture }}</option> -->
         <option disabled value="">{{ home.filter.manufacture }}</option>
         <option v-for="(m, i) in manufacturers" :key="i" :value="m">{{ m }}</option>
       </select>
 
       <select v-model="productNumber" @change="$emit('update-product-number', productNumber)"
         :style="{ backgroundColor: pickedColor }" class=" w-full px-3 py-1.5 rounded text-white text-sm outline-none ">
-        <!-- <option>{{ home.filter.productNumber }}</option> -->
         <option disabled value="">{{ home.filter.productNumber }}</option>
         <option v-for="(m, i) in productNumbers" :key="i" :value="m">{{ m }}</option>
       </select>
 
       <select v-model="classification" @change="$emit('update-classification', classification)"
         :style="{ backgroundColor: pickedColor }" class="w-full px-3 py-1.5 rounded text-white text-sm outline-none ">
-        <!-- <option>{{ home.filter.ShippingClassification }}</option> -->
         <option disabled value="">{{ home.filter.ShippingClassification }}</option>
         <option v-for="(m, i) in classifications" :key="i" :value="m">{{ m }}</option>
       </select>
@@ -44,9 +41,9 @@
 
       <!-- download csv -->
       <span class="text-white text-sm">{{ home.filter.csv }}</span>
-      <button @click="$emit('export')" class="px-2 py-1 rounded text-white text-sm"
+      <button @click="$emit('export')" class="px-2 py-1 rounded text-cyan-400 text-xl w-10 "
         :style="{ backgroundColor: pickedColor }">
-        🡫
+        ⤓
       </button>
     </div>
 
