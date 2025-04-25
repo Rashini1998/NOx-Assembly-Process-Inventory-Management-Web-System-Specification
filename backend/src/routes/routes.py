@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from src.controllers.inventory_controller import process_inventory_csv
+from src.controllers.status_controller import process_status_csv
 from src.models.inventory_history import InventoryHistory
 from src import db
 
@@ -42,3 +43,16 @@ def get_inventory_history():
         })
     return jsonify(data)
 
+# Upload data to the realtime shelf label status table
+@inventory_bp.route('/api/upload-status', methods=['POST'])
+def upload_status():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part in the request'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    result = process_status_csv(file)
+    return jsonify(result), 200
