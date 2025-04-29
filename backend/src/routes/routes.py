@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from src.controllers.inventory_controller import process_inventory_csv
 from src.controllers.status_controller import process_status_csv
 from src.models.inventory_history import InventoryHistory
+from src.models.status_model import LabelStatus
 from src import db
 
 inventory_bp = Blueprint('inventory', __name__)
@@ -56,3 +57,23 @@ def upload_status():
 
     result = process_status_csv(file)
     return jsonify(result), 200
+
+
+# Get inventory data for Vue table
+@inventory_bp.route('/api/label-status', methods=['GET'])
+def get_label_status():
+    records = LabelStatus.query.all()
+    data = []
+    for r in records:
+        data.append({
+            "ShelfTagID": r.ShelfTagID,
+            "PartNumber": r.PartNumber,
+            "NextProcessName": r.NextProcessName,
+            "ProcessingLot": r.ProcessingLot,
+            "Quantity": r.Quantity,
+            "WorkStatus": r.WorkStatus,
+            "ShelfTagRegistrationDate": r.ShelfTagRegistrationDate,
+            "ShelfTagUpdateDate": r.ShelfTagUpdateDate,
+            "DurationOfStay": r.DurationOfStay
+        })
+    return jsonify(data)

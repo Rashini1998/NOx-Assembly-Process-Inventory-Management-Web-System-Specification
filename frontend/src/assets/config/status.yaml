@@ -1,0 +1,18 @@
+status:
+  filter:
+    search: "絞込み検索"
+    shelfTagID: "棚札ID"
+    partNumber: "品番"
+    nextProcessName: "次工程名称"
+    workStatus: "作業状態"
+    csv: "csv出力"
+  table:
+    shelfTagID: "棚札ID"
+    partNumber: "品番"
+    nextProcessName: "次工程名称"
+    processingLot: "加工Lot"
+    quantity: "数量"
+    workStatus: "作業状況"
+    tagRegistrationDate: "棚札登録日時"
+    tagUpdateDate: "棚札更新日時"
+    daysInStock: "滞留日数"
