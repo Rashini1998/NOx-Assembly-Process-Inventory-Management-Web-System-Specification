@@ -40,7 +40,7 @@
       <div class="ml-auto flex items-center gap-2 shrink-0">
   
         <!-- reset the filterd data -->
-        <span class="text-white text-sm">{{ home.filter.reset }}</span>
+        <span class="text-white text-sm">{{ home.filter.reset  }}</span>
         <button  @click="resetFilters"  class="px-2 py-1 rounded text-white text-sm" :style="{ backgroundColor: pickedColor }">
           <img :src="reset" alt="Reset" />
         </button>

@@ -6,6 +6,7 @@ status:
     nextProcessName: "次工程名称"
     workStatus: "作業状態"
     csv: "csv出力"
+    reset: "リセット"
   table:
     shelfTagID: "棚札ID"
     partNumber: "品番"
