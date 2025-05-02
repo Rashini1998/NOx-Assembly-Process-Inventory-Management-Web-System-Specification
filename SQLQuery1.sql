@@ -81,3 +81,5 @@ create table spare_capacity_weekly(
 );
 
 select * from spare_capacity_weekly;
+ALTER TABLE spare_capacity_weekly
+ALTER COLUMN Updated DATETIME NOT NULL;
