@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from src.controllers.inventory_controller import process_inventory_csv
 from src.controllers.status_controller import process_status_csv
+from src.controllers.inventory_availability_controller import process_availability_csv
 from src.models.inventory_history import InventoryHistory
 from src.models.status_model import LabelStatus
 from src import db
@@ -77,3 +78,20 @@ def get_label_status():
             "DurationOfStay": r.DurationOfStay
         })
     return jsonify(data)
+
+# Upload data to the spare capacity weekly table
+@inventory_bp.route('/api/upload-availability', methods=['POST'])
+def upload_availability():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part in the request'}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    result = process_availability_csv(file)
+    return jsonify(result), 200
+
+
+# Get inventory availability data for Vue table
