@@ -1,10 +1,12 @@
 <template>
-    <div class="flex items-center text-white space-x-4 ">
-      <div class="font-semibold text-xl pl-2">{{ pageTitle }}</div>
-      <div class="text-sm p-2">{{ home.title.updatedate }}</div>
-      <div class="text-sm p-2">{{ home.title.updateFrequency }}</div>
+    <div class="flex items-center text-white space-x-3 ">
+      <div class="font-semibold text-xl">{{ pageTitle }}</div>
+      <div class="text-sm">{{ home.title.updatedate }}</div>
+      <div class="text-sm">{{ updatedTime }}</div>
+      <div class="text-sm">{{ home.title.updateFrequency }}</div>
+      <div class="text-sm">{{ home.title.oneMin }}</div>
       <button 
-        @click="$emit('')" 
+        @click="$emit('refresh')" 
         class="px-2 py-1 rounded text-white text-sm"
         :style="{ backgroundColor: pickedColor }">
         <img :src="refresh"  alt="Refresh"  />
@@ -20,6 +22,9 @@
   import homeData from '@/assets/config/home.yaml'
   
   const route = useRoute()
+  const pickedColor = ref('#212121')
+  const home = ref(homeData.home)
+  const defineProps = defineProps({ updatedTime: String })
   
   const pageTitle = computed(() => {
     switch (route.path) {
@@ -37,7 +42,7 @@
         return 'Hello'
     }
   })
-  const pickedColor = ref('#212121')
-  const home = ref(homeData.home)
+
+
   </script>
   

@@ -10,6 +10,7 @@ home:
   title:
     updatedate: "最終更新日 :"
     updateFrequency: "更新頻度 :"
+    oneMin: "1分"
   filter:
     search: "絞込み検索"
     manufacture: "メーカー"
@@ -34,7 +35,4 @@ home:
       FA_Fractional_Items: "FA識数品"
       Visual_Inspection: "外観検査"
       total: "品番合計"
-
-
-
 

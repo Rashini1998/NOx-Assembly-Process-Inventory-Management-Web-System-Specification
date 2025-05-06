@@ -2,7 +2,7 @@
   <!-- <div class="bg-gray-100 min-h-screen pt-20"> -->
   <div class="min-h-screen">
     <div class="bg-black shadow-md py-4 px-4">
-      <TitleBar />
+      <TitleBar :updatedTime="lastUpdated" @refresh="manualRefresh" />
     </div>
 
     <!-- Filter/Search Bar -->
@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import axios from 'axios';
 // import jsPDF from 'jspdf'
 // import autoTable from 'jspdf-autotable'
@@ -32,7 +32,10 @@ import InventoryTable from '@/components/InventoryTable.vue'
 import TitleBar from '@/components/TitleBar.vue'
 
 const tableData = ref([]);
-const query = ref('')
+const query = ref('');
+const lastUpdated = ref('');
+const refreshInterval = ref(60000);
+let intervalId = null;
 
 const selectedManufacturer = ref('')
 const selectedProductNumber = ref('')
@@ -47,17 +50,45 @@ const uniqueClassifications = computed(() => [...new Set(tableData.value.map(ite
 const fetchInventoryData = async () => {
   try {
     const response = await axios.get('http://localhost:5000/api/inventory-history')
-    tableData.value = response.data
+    tableData.value = response.data;
+    lastUpdated.value = new Date().toLocaleString();
 
   } catch (error) {
     console.error("Error fetching inventory history", error);
   }
 }
 
+//Get refresh interval from backend
+const fetchRefreshInterval = async () => {
+  try {
+    const res = await axios.get('http://localhost:5000/api/refresh-config');
+    refreshInterval.value = res.data.refresh_interval * 60 * 1000; // convert to ms
+  } catch (e) {
+    console.warn('Failed to load refresh interval, using default.');
+  }
+};
+
+// Setup automatic refresh
+const setupAutoRefresh = () => {
+  clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    fetchInventoryData();
+  }, refreshInterval.value);
+};
+
 //Fetch on page load
-onMounted(() => {
-  fetchInventoryData()
-})
+// onMounted(() => {
+//   fetchInventoryData()
+// })
+onMounted(async () => {
+  await fetchRefreshInterval();
+  await fetchInventoryData();
+  setupAutoRefresh();
+});
+
+onBeforeUnmount(() => {
+  clearInterval(intervalId);
+});
 
 //Search filter
 const handleSearch = (val) => {
@@ -76,6 +107,11 @@ const filteredData = computed(() => {
   });
 });
 
+
+// Manual Refresh
+const manualRefresh = () => {
+  fetchInventoryData();
+};
 
 // export to pdf
 // const handleExport = () => {
