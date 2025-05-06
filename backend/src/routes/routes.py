@@ -5,6 +5,7 @@ from src.controllers.inventory_availability_controller import process_availabili
 from src.models.inventory_history import InventoryHistory
 from src.models.status_model import LabelStatus
 from src import db
+from flask import current_app
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -93,5 +94,11 @@ def upload_availability():
     result = process_availability_csv(file)
     return jsonify(result), 200
 
+
+# Refresh
+@inventory_bp.route('/api/refresh-config', methods=['GET'])
+def get_refresh_config():
+    refreshInterval = current_app.config.get("REFRESH_INTERVAL", 1)
+    return jsonify({"refresh_interval": refreshInterval})
 
 # Get inventory availability data for Vue table

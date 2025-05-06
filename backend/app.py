@@ -1,8 +1,9 @@
-from src import db  # db is initialized in src/__init__.py
+from src import db 
 from src.routes.routes import inventory_bp
 from flask import Flask
 from flask_cors import CORS
 import yaml, os
+from src.config.settings import get_refresh_interval
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +27,8 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    app.config['REFRESH_INTERVAL_MINUTES'] = get_refresh_interval()
 
     db.init_app(app)
     app.register_blueprint(inventory_bp)  
