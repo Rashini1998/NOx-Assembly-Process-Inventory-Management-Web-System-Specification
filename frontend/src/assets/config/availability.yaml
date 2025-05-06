@@ -1,0 +1,22 @@
+availability:
+  settings:
+    section_settings: "工程区間設定"
+    start_process: "開始工程（必須)"
+    end_process: "終了工程（必須)"
+  filter:
+    search: "絞込み検索"
+    part_number: "品番"
+    shipment_category: "出荷区分"
+    manufacture: "メーカー"
+    reset: "リセット"
+    csv: "csv出力"
+  table:
+    headers:
+      part_number: "品番"
+      manufacture: "メーカー"
+      shipment_category: "出荷区分"
+      in_process_inventory: "工程内在庫"
+      received_inventory: "入庫実績"
+      pre_shipment_inventory: "出荷前在庫"
+      available_days: "余力日数"
+      inventory_quality: "上段) 計画数 (下段) 工程内在庫数"
