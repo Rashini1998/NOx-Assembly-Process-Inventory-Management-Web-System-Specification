@@ -4,6 +4,7 @@ from src.controllers.status_controller import process_status_csv
 from src.controllers.inventory_availability_controller import process_availability_csv
 from src.models.inventory_history import InventoryHistory
 from src.models.status_model import LabelStatus
+from src.models.inventory_availability_model import InventoryAvailability
 from src import db
 from flask import current_app
 
@@ -94,11 +95,39 @@ def upload_availability():
     result = process_availability_csv(file)
     return jsonify(result), 200
 
+# Get inventory availability data for Vue table
+@inventory_bp.route('/api/inventory-availability', methods=['GET'])
+def get_inventory_availability():
+    records = InventoryAvailability.query.all()
+    data = []
+    for r in records:
+        data.append({
+            "ProductNumber": r.Product_Number,
+            "Manufacturer": r.Manufacturer,
+            "ShippingClassification": r.Shipping_Classification,
+            "AirtightnessInspection": r.Airtightness_Inspection,
+            "SCU": r.SCU,
+            "CharacteristicInspection": r.Characteristic_Inspection,
+            "CharacteristicInspectionOddLot": r.Characteristic_Inspection_Odd_Lot,
+            "Accessories": r.Accessories,
+            "FA": r.FA,
+            "FAFractionalItems": r.FA_Fractional_Items,
+            "VisualInspection": r.Visual_Inspection,
+            "StockReceiptRecord": r.Stock_Receipt_Record,
+            "PreShipmentInventory": r.Pre_Shipment_Inventory,
+            "Plan1": r.Plan_1,
+            "Plan2": r.Plan_2,
+            "Plan3": r.Plan_3,
+            "Plan4": r.Plan_4,
+            "Plan5": r.Plan_5,
+            "Plan6": r.Plan_6,
+            "Updated": r.Updated,
+
+        })
+    return jsonify(data)
 
 # Refresh
 @inventory_bp.route('/api/refresh-config', methods=['GET'])
 def get_refresh_config():
     refreshInterval = current_app.config.get("REFRESH_INTERVAL", 1)
     return jsonify({"refresh_interval": refreshInterval})
-
-# Get inventory availability data for Vue table
