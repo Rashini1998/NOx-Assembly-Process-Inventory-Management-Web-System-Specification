@@ -2,7 +2,7 @@
   <header>
     <div class=" min-h-screen ">
       <div class="bg-black shadow-md py-4 px-6">
-        <TitleBar />
+        <TitleBar :updatedTime="lastUpdated" @refresh="manualRefresh" />
       </div>
       <!-- Filter/Search Bar -->
       <div class="bg-black shadow-md">
@@ -26,11 +26,15 @@
 
 import StatusFilterBar from '@/components/StatusFilterBar.vue';
 import TitleBar from '@/components/TitleBar.vue'
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount  } from 'vue';
 import axios from 'axios';
 import StatusTable from '@/components/StatusTable.vue';
 
 const tableData = ref([]);
+const query = ref('');
+const lastUpdated = ref('');
+const refreshInterval = ref(60000);
+let intervalId = null;
 
 // tableData=[
 // {
@@ -46,7 +50,7 @@ const tableData = ref([]);
 //   },
 // ]
 
-const query = ref('');
+
 
 // Filter Inputs (from StatusFilterBar)-->hold the current user-selected filters
 const selectedtagId = ref('')
@@ -63,17 +67,45 @@ const uniquepartNumbers = computed(() => [...new Set(tableData.value.map(item =>
 const fetchStatusData = async () => {
   try {
     const response = await axios.get('http://localhost:5000/api/label-status')
-    tableData.value = response.data
+    tableData.value = response.data;
+    lastUpdated.value = new Date().toLocaleString();
 
   } catch (error) {
     console.error("Error fetching inventory history", error);
   }
 }
 
+
+//Get refresh interval from backend
+const fetchRefreshInterval = async () => {
+  try {
+    const res = await axios.get('http://localhost:5000/api/refresh-config');
+    refreshInterval.value = res.data.refresh_interval * 60 * 1000; // convert to ms
+  } catch (e) {
+    console.warn('Failed to load refresh interval, using default.');
+  }
+};
+
+// Setup automatic refresh
+const setupAutoRefresh = () => {
+  clearInterval(intervalId);
+  intervalId = setInterval(() => {
+    fetchStatusData();
+  }, refreshInterval.value);
+};
+
 //Fetch on page load
-onMounted(() => {
-  fetchStatusData()
+onMounted( async() => {
+  await fetchRefreshInterval();
+  await fetchStatusData();
+  setupAutoRefresh();
+
+  // fetchStatusData()
 })
+
+onBeforeUnmount(() => {
+  clearInterval(intervalId);
+});
 
 //Search filter
 const handleSearch = (val) => {
@@ -128,5 +160,10 @@ function exportToCSV(){
   link.click();
 
 }
+
+// Manual Refresh
+const manualRefresh = () => {
+  fetchStatusData();
+};
 
 </script>
