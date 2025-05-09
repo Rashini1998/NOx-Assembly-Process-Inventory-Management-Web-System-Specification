@@ -3,6 +3,8 @@ availability:
     section_settings: "工程区間設定"
     start_process: "開始工程（必須)"
     end_process: "終了工程（必須)"
+    air_tightness_inspection: "気密検査"
+    visual_inspection: " 外観検査 "
   filter:
     search: "絞込み検索"
     part_number: "品番"
