@@ -1,66 +1,85 @@
 <template>
-    <tr class="text-center border-t border-gray-200 text-sm" style="background-color:rgb(212 212 212);">
-        <td>{{ row.ProductNumber }}</td>
-        <td class="py-2 px-3 text-left">
-            <div class="flex items-center space-x-1">
-                <img :src="status" alt="status" class="h-4 w-4" />
-                <span>{{ row.Manufacturer }}</span>
-            </div>
-        </td>
-        <td>{{ row.ShippingClassification }}</td>
-        <td>{{ row.a }}</td>
-        <td>{{ row.StockReceiptRecord }}</td>
-        <td>{{ row.PreShipmentInventory }}</td>
-        <td>{{ row.Plan1 }}</td>
-        <td>{{ row.b }}</td>
-
-        <!-- {
-    "Accessories": 0,
-    "AirtightnessInspection": 0,
-    "CharacteristicInspection": 90,
-    "CharacteristicInspectionOddLot": 2,
-    "FA": 2,
-    "FAFractionalItems": 0,
-    "Manufacturer": "GUSTO",
-    "Plan1": 0,
-    "Plan2": 0,
-    "Plan3": 0,
-    "Plan4": 0,
-    "Plan5": 0,
-    "Plan6": 0,
-    "PreShipmentInventory": 100,
-    "ProductNumber": "1144780012",
-    "SCU": 0,
-    "ShippingClassification": "国内・市販",
-    "StockReceiptRecord": 50,
-    "Updated": "Wed, 18 Sep 2024 14:34:00 GMT",
-    "VisualInspection": 6
-  }, -->
-
+    <tr class="text-center border-t border-gray-100 text-sm bg-neutral-300">
+      <!-- Product Number -->
+      <td rowspan="2" class="align-middle border border-gray-100">{{ row.ProductNumber }}</td>
+  
+      <!-- Manufacturer with icon -->
+      <td rowspan="2" class="py-2 px-3 text-left align-middle border border-gray-100">
+        <div class="flex items-center space-x-1">
+          <img :src="status" alt="status" class="h-4 w-4" />
+          <span>{{ row.Manufacturer }}</span>
+        </div>
+      </td>
+  
+      <!-- Shipping Classification -->
+      <td rowspan="2" class="align-middle border border-gray-100">{{ row.ShippingClassification }}</td>
+  
+      <!-- In-Process Inventory -->
+      <td rowspan="2" class="align-middle border border-gray-100">{{ row.inProcessInventory }}</td>
+  
+      <!-- Stock Receipt Record -->
+      <td rowspan="2" class="align-middle border border-gray-100">{{ row.StockReceiptRecord }}</td>
+  
+      <!-- Pre-Shipment Inventory -->
+      <td rowspan="2" class="align-middle border border-gray-100">{{ row.PreShipmentInventory }}</td>
+  
+      <!-- Plan Values (top row) -->
+      <td
+        v-for="(item, index) in planRows"
+        :key="'plan-' + index"
+        :style="{ backgroundColor: index === 0 ? 'rgba(255,232,117,1)' : bg-neutral-300 }"
+        class="border border-gray-100 h-9"
+      >
+        {{ item.plan }}
+      </td>
+  
+      <!-- Available days -->
+      <td rowspan="2" class="align-middle border border-gray-100">{{ row.available_days }}</td>
     </tr>
-</template>
-
-<script setup>
-import status from '@/assets/images/status-icon.png'
-// import { computed } from 'vue';
-
-defineProps({
+  
+    <tr class="text-center border-b border-gray-100 text-sm bg-neutral-300">
+      <!-- Remaining Inventory (bottom row) -->
+      <td
+        v-for="(item, index) in planRows"
+        :key="'remaining-' + index"
+        :style="{ backgroundColor: index === 0 ? 'rgba(255,232,117,1)' : bg-neutral-300}"
+        class="border border-gray-100 h-9"
+      >
+        {{ item.remaining }}
+      </td>
+    </tr>
+  </template>
+  
+  <script setup>
+  import status from '@/assets/images/status-icon.png'
+  import { computed } from 'vue';
+  
+  const props = defineProps({
     row: Object
-})
-
-// const workStatusBgColor = computed(() => {
-//     const status = String(props.row.WorkStatus);
-//     if (status === '1') return 'white';
-//     if (status === '2') return 'black';
-//     if (status === '3') return 'red';
-//     return 'transparent'
-
-// })
-
-// const workStatusTextColor = computed(() => {
-//     const status = String(props.row.WorkStatus)
-//     if (status === '2') return 'white' // when background is black
-//     return 'black'
-// })
-
-</script>
+  });
+  
+  const planRows = computed(() => {
+    const plans = [
+      props.row.Plan1 || 0,
+      props.row.Plan2 || 0,
+      props.row.Plan3 || 0,
+      props.row.Plan4 || 0,
+      props.row.Plan5 || 0,
+      props.row.Plan6 || 0,
+      props.row.Plan7 || 0,
+    ];
+  
+    const initialInventory = props.row.PreShipmentInventory || 0;
+    let cumulative = 0;
+  
+    return plans.map((plan) => {
+      cumulative += plan;
+      const remaining = initialInventory - cumulative;
+      return {
+        plan,
+        remaining: remaining < 0 ? 0 : remaining,
+      };
+    });
+  });
+  </script>
+  
