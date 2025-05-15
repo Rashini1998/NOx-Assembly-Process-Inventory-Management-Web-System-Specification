@@ -3,7 +3,7 @@
         <thead>
 
             <!-- Column Headers -->
-            <tr class="bg-gray-700 text-black text-center" style="background-color: rgb(163 163 163);">
+            <tr class="bg-gray-700 text-black text-center h-12" style="background-color: rgba(128,128,128,255);">
                 <th class="px-2 py-1 border ">{{ home.table.shelfTagID }}</th>
                 <th class="px-2 py-1 border">{{ home.table.partNumber }}</th>
                 <th class="px-2 py-1 border">{{ home.table.nextProcessName }}</th>

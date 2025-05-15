@@ -2,7 +2,7 @@
   <table class="w-full border-collapse table-auto text-sm border-gray-300 bg-black">
     <thead>
       <!-- Total Row -->
-      <tr class="text-black font-bold text-center " style="background-color:rgb(212 212 216);">
+      <tr class="text-black font-bold text-center h-12" style="background-color:rgb(212 212 216);">
         <th class="px-2 py-1 border" style="background-color: rgb(251 191 36);" colspan="4">{{ home.table.headers.totalProducts }}</th>
         <th class="px-2 py-1 border">{{ total.airtightness }}</th>
         <th class="px-2 py-1 border">{{ total.scu }}</th>
@@ -17,7 +17,7 @@
       </tr>
 
       <!-- Column Headers -->
-      <tr class="bg-gray-700 text-black text-center" style="background-color: rgb(163 163 163);">
+      <tr class="bg-gray-700 text-black text-center h-12" style="background-color: rgba(128,128,128,255);">
         <th class="px-2 py-1 border ">{{ home.table.headers.manufacture }}</th>
         <th class="px-2 py-1 border">{{ home.table.headers.ASSY_Part_Number }}</th>
         <th class="px-2 py-1 border">{{ home.table.headers.SUBASSY_Part_Number }}</th>
