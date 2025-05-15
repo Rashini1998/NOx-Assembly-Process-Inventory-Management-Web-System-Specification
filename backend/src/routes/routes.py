@@ -121,6 +121,7 @@ def get_inventory_availability():
             "Plan4": r.Plan_4,
             "Plan5": r.Plan_5,
             "Plan6": r.Plan_6,
+            "Plan7": r.Plan_7,
             "Updated": r.Updated,
 
         })
