@@ -88,9 +88,6 @@ const resetFilters = () => {
 }
 
 
-
-
-
 // const searchQuery = ref('')
 const pickedColor = ref('#212121')
 
