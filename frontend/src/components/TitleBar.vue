@@ -36,8 +36,10 @@
         return 'リアルタイム中間在庫余力日数'
       case '/trend':
         return '中間在庫推移'
-      case '/table':
+      case '/general_purpose':
         return '汎用テーブル表示'
+      case '/imm_setting':
+        return '在庫管理マスタ設定画面'
       default:
         return 'Hello'
     }

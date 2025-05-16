@@ -3,7 +3,8 @@ import HomePage from '@/views/HomePage.vue'
 import StatusPage from '@/views/StatusPage.vue'
 import CapacityPage from '@/views/CapacityPage.vue'
 import TrendPage from '@/views/TrendPage.vue'
-import TablePage from '@/views/TablePage.vue'
+import GeneralPurposePage from '@/views/GeneralPurposePage.vue'
+import IMM_Setting from '@/views/IMM_SettingScreen.vue'
 import HelpScreen from '@/views/HelpScreen.vue'
 
 const routes = [
@@ -29,9 +30,14 @@ const routes = [
     component: TrendPage
   },
   {
-    path: '/table',
-    name: 'Table',
-    component: TablePage
+    path: '/general_purpose',
+    name: 'General',
+    component: GeneralPurposePage
+  },
+  {
+    path: '/imm_setting',
+    name: 'IMM_Setting',
+    component: IMM_Setting
   },
   {
     path: '/help',

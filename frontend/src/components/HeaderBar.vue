@@ -12,8 +12,9 @@
         <option value="/status">{{ home.header.page02 }}</option>
         <option value="/capacity">{{ home.header.page03 }}</option>
         <option value="/trend">{{ home.header.page04 }}</option>
-        <option value="/table">{{ home.header.page05 }}</option>
-        <option value="/help">{{ home.header.page06 }}</option>
+        <option value="/general_purpose">{{ home.header.page05 }}</option>
+        <option value="/imm_setting">{{ home.header.page06 }}</option>
+        <option value="/help">{{ home.header.page07 }}</option>
 
       </select>
     </div>
