@@ -34,7 +34,7 @@
       </td>
   
       <!-- Available days -->
-      <td rowspan="2" class="align-middle border border-gray-100">{{ row.available_days }}</td>
+      <td rowspan="2" class="align-middle border border-gray-100">{{ availableDays}}</td>
     </tr>
   
     <tr class="text-center border-b border-gray-100 text-sm bg-neutral-300">
@@ -81,5 +81,29 @@
       };
     });
   });
+
+  function calculateAvailableDays(preInventory, plans){
+    let cumulative = 0;
+    for (let i =0; i< plans.length; i++){
+      cumulative += plans[i];
+      if (cumulative > preInventory){
+        return i;
+      }
+    }
+    return plans.length;
+  }
+
+  const availableDays = computed(()=>{
+    const plans = [
+    props.row.Plan1 || 0,
+    props.row.Plan2 || 0,
+    props.row.Plan3 || 0,
+    props.row.Plan4 || 0,
+    props.row.Plan5 || 0,
+    props.row.Plan6 || 0,
+    props.row.Plan7 || 0
+  ];
+  return calculateAvailableDays(props.row.PreShipmentInventory || 0, plans);
+  })
   </script>
   
