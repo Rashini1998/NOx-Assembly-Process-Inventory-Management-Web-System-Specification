@@ -3,7 +3,7 @@
     <td class="py-2 px-3 text-left">
       <div class="flex items-center space-x-1">
         <img :src="status" alt="status" class="h-4 w-4" />
-        <span>{{ row.ShelfTagID }}</span>
+        <span>{{ row.ShelfTagID ?? 'NULL' }}</span>
       </div>
     </td>
     <td>{{ row.PartNumber }}</td>
