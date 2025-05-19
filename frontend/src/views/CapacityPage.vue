@@ -196,38 +196,89 @@ const filteredData = computed(() => {
 
 //export to csv
 
-function exportToCSV() {
-  const headers = [
-    "Product number","Manufacturer", "Shipping Classification", "Inprocess Inventory", "Stock Receipt Record", "Preshipment Inventory", "(Top row) Planned quantity (Bottom row) In-process inventory quantity", "Remaining days"
-  ]
+// function exportToCSV() {
+//   const headers = [
+//     "Product number","Manufacturer", "Shipping Classification", "Inprocess Inventory", "Stock Receipt Record", "Preshipment Inventory", "(Top row) Planned quantity (Bottom row) In-process inventory quantity", "Remaining days"
+//   ]
 
-  // Add the 'total' value for each row using the computed total
-  const rows = tableData.value.map(item => {
+//   // Add the 'total' value for each row using the computed total
+//   const rows = tableData.value.map(item => {
 
-    return [
-      item.ProductNumber,
-      item.Manufacturer,
-      item.ShippingClassification,
-      item.a,
-      item.StockReceiptRecord,
-      item.PreShipmentInventory,
-      item.b,
-      item.c
-    ];
-  });
-  const csvContent = [headers, ...rows]
-    .map(e => e.join(","))
-    .join("\n");
+//     return [
+//       item.ProductNumber,
+//       item.Manufacturer,
+//       item.ShippingClassification,
+//       item.a,
+//       item.StockReceiptRecord,
+//       item.PreShipmentInventory,
+//       item.b,
+//       item.c
+//     ];
+//   });
+//   const csvContent = [headers, ...rows]
+//     .map(e => e.join(","))
+//     .join("\n");
 
-  const bom = "\uFEFF";
-  // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+//   const bom = "\uFEFF";
+//   // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+//   const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
 
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.setAttribute("href", url)
-  link.setAttribute("download", "inventory.csv")
+//   const url = URL.createObjectURL(blob)
+//   const link = document.createElement("a")
+//   link.setAttribute("href", url)
+//   link.setAttribute("download", "inventory.csv")
+//   link.click();
+// }
+
+// function exportToCSV(tableId = 'inventory-table', filename = 'export.csv') {
+//   const table = document.getElementById(tableId);
+//   if (!table) {
+//     console.error(`Table with ID "${tableId}" not found.`);
+//     return;
+//   }
+
+//   const rows = Array.from(table.querySelectorAll('tr'));
+//   const csv = rows.map(row => {
+//     const cells = Array.from(row.querySelectorAll('th, td'));
+//     return cells.map(cell => `"${cell.innerText.trim()}"`).join(',');
+//   }).join('\n');
+
+//   const bom = "\uFEFF"; // Add BOM for Excel compatibility
+//   const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+//   const url = URL.createObjectURL(blob);
+
+//   const link = document.createElement('a');
+//   link.href = url;
+//   link.download = filename;
+//   link.click();
+// }
+
+function exportToCSV(tableId = 'inventory-table', filename = 'export.csv') {
+  const table = document.getElementById(tableId);
+  if (!table) {
+    console.error(`Table with ID "${tableId}" not found.`);
+    return;
+  }
+
+  const rows = Array.from(table.querySelectorAll('tr'));
+  const csv = rows.map(row => {
+    const cells = Array.from(row.querySelectorAll('th, td'));
+    return cells.map(cell => {
+      const text = cell.innerText.trim();
+      return `"${text.replace(/"/g, '""')}"`; // escape quotes
+    }).join(',');
+  }).join('\n');
+
+  const bom = "\uFEFF"; // Add BOM for Excel
+  const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
   link.click();
 }
+
+
 
 </script>

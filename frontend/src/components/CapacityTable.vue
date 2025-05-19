@@ -1,5 +1,5 @@
 <template>
-    <table class="w-full border-collapse table-auto text-sm border-gray-300 bg-black">
+    <table class="w-full border-collapse table-auto text-sm border-gray-300 bg-black" id="inventory-table">
         <thead>
 
             <!-- Column Headers -->
