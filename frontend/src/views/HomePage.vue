@@ -100,7 +100,8 @@ const filteredData = computed(() => {
       String(v).toLowerCase().includes(query.value)
     );
     const matchesManufacturer = selectedManufacturer.value ? item.manufacturer === selectedManufacturer.value : true;
-    const matchesProduct = selectedProductNumber.value ? item.assyNumber === selectedProductNumber.value : true;
+    // const matchesProduct = selectedProductNumber.value ? item.assyNumber === selectedProductNumber.value : true;
+    const matchesProduct = selectedProductNumber.value ? String(item.assyNumber).slice(-4)=== String(selectedProductNumber.value):true;
     const matchesClassification = selectedClassification.value ? item.classification === selectedClassification.value : true;
 
     return matchesSearch && matchesManufacturer && matchesProduct && matchesClassification;

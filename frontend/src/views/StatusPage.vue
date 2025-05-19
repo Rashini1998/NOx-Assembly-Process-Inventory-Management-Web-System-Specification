@@ -8,8 +8,7 @@
       <div class="bg-black shadow-md">
         <StatusFilterBar @search="handleSearch" @export="exportToCSV" @update-tagId="selectedtagId = $event"
           @update-nextProcessName="selectednextProcessName = $event" @update-workStatus="selectedworkStatus = $event"
-          @update-partNumber="selectedpartNumber = $event" 
-          :tagIds="uniquetagIds"
+          @update-partNumber="selectedpartNumber = $event" :tagIds="uniquetagIds"
           :nextProcessNames="uniquenextProcessNames" :workStatuses="uniqueworkStatuses"
           :partNumbers="uniquepartNumbers" />
       </div>
@@ -26,7 +25,7 @@
 
 import StatusFilterBar from '@/components/StatusFilterBar.vue';
 import TitleBar from '@/components/TitleBar.vue'
-import { ref, computed, onMounted, onBeforeUnmount  } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import axios from 'axios';
 import StatusTable from '@/components/StatusTable.vue';
 
@@ -95,7 +94,7 @@ const setupAutoRefresh = () => {
 };
 
 //Fetch on page load
-onMounted( async() => {
+onMounted(async () => {
   await fetchRefreshInterval();
   await fetchStatusData();
   setupAutoRefresh();
@@ -117,23 +116,30 @@ const filteredData = computed(() => {
     const matchesSearch = Object.values(item).some((v) =>
       String(v).toLowerCase().includes(query.value)
     );
-    const matchesTagId = selectedtagId.value ? item.ShelfTagID === selectedtagId.value : true;
+    const matchesTagId = selectedtagId.value
+      ? item.ShelfTagID?.toLowerCase().includes(selectedtagId.value.toLowerCase())
+      : true;
+    const matchesPartNumber = selectedpartNumber.value
+      ? String(item.PartNumber).slice(-4) === String(selectedpartNumber.value)
+      : true;
+
+    // const matchesTagId = selectedtagId.value ? item.ShelfTagID === selectedtagId.value : true;
     const matchesNextProcessName = selectednextProcessName.value ? item.NextProcessName === selectednextProcessName.value : true;
     const matchesWorkStatus = selectedworkStatus.value ? item.WorkStatus === selectedworkStatus.value : true;
-    const matchesPartNumber = selectedpartNumber.value ? item.PartNumber === selectedpartNumber.value : true;
+    // const matchesPartNumber = selectedpartNumber.value ? item.PartNumber === selectedpartNumber.value : true;
 
     return matchesSearch && matchesTagId && matchesNextProcessName && matchesWorkStatus && matchesPartNumber;
   });
 });
 
 // export to csv
-function exportToCSV(){
+function exportToCSV() {
   const headers = [
-    "棚札ID","品番", "次工程名称", "加工Lot", "数量", "作業状況", "棚札登録日時", "棚札更新日時", "滞留日数"
+    "棚札ID", "品番", "次工程名称", "加工Lot", "数量", "作業状況", "棚札登録日時", "棚札更新日時", "滞留日数"
   ]
 
-  const rows = tableData.value.map(item =>{
-    return[
+  const rows = tableData.value.map(item => {
+    return [
       item.ShelfTagID,
       item.PartNumber,
       item.NextProcessName,
@@ -147,12 +153,12 @@ function exportToCSV(){
   });
 
   const csvContent = [headers, ...rows]
-  .map(e=>e.join(',')).join("\n");
+    .map(e => e.join(',')).join("\n");
 
   const bom = "\uFEFF";
   // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
   const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
-  
+
   const url = URL.createObjectURL(blob)
   const link = document.createElement("a")
   link.setAttribute("href", url)

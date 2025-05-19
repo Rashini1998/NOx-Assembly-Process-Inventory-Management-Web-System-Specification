@@ -163,7 +163,8 @@ const filteredData = computed(() => {
     const matchesSearch = Object.values(item).some((v) =>
       String(v).toLowerCase().includes(query.value)
     );
-    const matchesPartNumber = selectedPartNumber.value ? item.ProductNumber === selectedPartNumber.value : true;
+    // const matchesPartNumber = selectedPartNumber.value ? item.ProductNumber === selectedPartNumber.value : true;
+    const matchesPartNumber = selectedPartNumber.value ? String(item.ProductNumber).slice(-4)=== String(selectedPartNumber.value):true;
     const matchesShipment = selectedShipment.value ? item.ShippingClassification === selectedShipment.value : true;
     const matchesManufacturer= selectedManufacturer.value ? item.Manufacturer === selectedManufacturer.value : true;
 
@@ -195,51 +196,38 @@ const filteredData = computed(() => {
 
 //export to csv
 
-// function exportToCSV() {
-//   const headers = [
-//     "Manufacturer", "Assy", "Sub Assy", "Classification", "Airtightness", "SCU", "Water Vapor",
-//     "Characteristic", "Fractional", "Accessories", "FA", "FA Fractional",
-//     "Visual", "Total"
-//   ]
+function exportToCSV() {
+  const headers = [
+    "Product number","Manufacturer", "Shipping Classification", "Inprocess Inventory", "Stock Receipt Record", "Preshipment Inventory", "(Top row) Planned quantity (Bottom row) In-process inventory quantity", "Remaining days"
+  ]
 
-//   // Add the 'total' value for each row using the computed total
-//   const rows = tableData.value.map(item => {
-//     const total = [
-//       'airtightness', 'scu', 'waterVapor',
-//       'inspection', 'fractional', 'accessories', 'fa',
-//       'faFractional', 'visual'
-//     ].reduce((sum, key) => sum + Number(item[key] || 0), 0)
+  // Add the 'total' value for each row using the computed total
+  const rows = tableData.value.map(item => {
 
-//     return [
-//       item.manufacturer,
-//       item.assyNumber,
-//       item.subassyNumber,
-//       item.classification,
-//       item.airtightness,
-//       item.scu,
-//       item.waterVapor,
-//       item.inspection,
-//       item.fractional,
-//       item.accessories,
-//       item.fa,
-//       item.faFractional,
-//       item.visual,
-//       total // Include the computed total here
-//     ];
-//   });
-//   const csvContent = [headers, ...rows]
-//     .map(e => e.join(","))
-//     .join("\n");
+    return [
+      item.ProductNumber,
+      item.Manufacturer,
+      item.ShippingClassification,
+      item.a,
+      item.StockReceiptRecord,
+      item.PreShipmentInventory,
+      item.b,
+      item.c
+    ];
+  });
+  const csvContent = [headers, ...rows]
+    .map(e => e.join(","))
+    .join("\n");
 
-//   const bom = "\uFEFF";
-//   // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
-//   const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
+  const bom = "\uFEFF";
+  // const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+  const blob = new Blob([bom + csvContent], { type: "text/csv;charset=utf-8;" });
 
-//   const url = URL.createObjectURL(blob)
-//   const link = document.createElement("a")
-//   link.setAttribute("href", url)
-//   link.setAttribute("download", "inventory.csv")
-//   link.click();
-// }
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.setAttribute("href", url)
+  link.setAttribute("download", "inventory.csv")
+  link.click();
+}
 
 </script>

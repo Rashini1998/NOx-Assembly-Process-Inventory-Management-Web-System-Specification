@@ -12,12 +12,20 @@
 
         <!-- Middle: Selects take all remaining space -->
         <div class="flex flex-grow gap-3">
-            <select v-model="partNumber" @change="$emit('update-partNumber', partNumber)"
+            <!-- <select v-model="partNumber" @change="$emit('update-partNumber', partNumber)"
                 :style="{ backgroundColor: pickedColor }"
                 class="w-full px-3 py-1.5 rounded text-white text-sm outline-none ">
                 <option disabled value="">{{ home.filter.part_number }}</option>
                 <option v-for="(m, i) in partNumbers" :key="i" :value="m">{{ m }}</option>
-            </select>
+            </select> -->
+            <input v-model="partNumber" list="productNumberList" maxlength="4"
+                @input="$emit('update-partNumber', partNumber)" :style="{ backgroundColor: pickedColor }"
+                class="w-full px-3 py-1.5 rounded text-white text-sm outline-none" type="text"
+                :placeholder="home.filter.part_number" />
+
+            <datalist id="productNumberList">
+                <option v-for="(num, index) in partNumbers" :key="'part-' + index" :value="String(num).slice(-4)" />
+            </datalist>
 
             <select v-model="shipmentCategory" @change="$emit('update-shipment', shipmentCategory)"
                 :style="{ backgroundColor: pickedColor }"
