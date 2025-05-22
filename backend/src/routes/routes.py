@@ -5,6 +5,8 @@ from src.controllers.inventory_availability_controller import process_availabili
 from src.models.inventory_history import InventoryHistory
 from src.models.status_model import LabelStatus
 from src.models.inventory_availability_model import InventoryAvailability
+from src.models.wip_inventories_history_model import WIP_Inventories
+from src.models.IITS_Master_model import IITS_Master
 from src import db
 from flask import current_app
 
@@ -132,3 +134,46 @@ def get_inventory_availability():
 def get_refresh_config():
     refreshInterval = current_app.config.get("REFRESH_INTERVAL", 1)
     return jsonify({"refresh_interval": refreshInterval})
+
+
+
+# Get inventory availability data for Vue table
+@inventory_bp.route('/api/wip-inventories-histories', methods=['GET'])
+def get_wip_inventories_histories():
+    records = WIP_Inventories.query.all()
+    data = []
+    for r in records:
+        data.append({
+            "ASSYPartNumber": r.ASSY_Part_Number,
+            "SUBASSY": r.SUBASSY,
+            "Manufacturer": r.Manufacturer,
+            "ShippingClass": r.Shipping_Class,
+            "AirtightInspection": r.Airtight_inspection,
+            "SCU": r.SCU,
+            "WaterVaporInspection": r.Water_Vapor_Inspection,
+            "CharacteristicsInspection": r.Characteristics_inspection,
+            "CharacteristicInspectionOddLot": r.Characteristic_inspection_odd_lot,
+            "Accessories": r.Accessories,
+            "FA": r.FA,
+            "FAFractionalItems": r.FA_fractional_items,
+            "VisualInspection": r.Visual_inspection,
+            "Updated": r.Updated,
+
+        })
+    return jsonify(data)
+
+# Get inventory availability data for Vue table
+@inventory_bp.route('/api/iits-master', methods=['GET'])
+def get_iits_master():
+    records = IITS_Master.query.all()
+    data = []
+    for r in records:
+        data.append({
+            "Part_Number": r.Part_Number,
+            "Inventory_Management_Group_Name": r.Inventory_Management_Group_Name,
+            "Standard_Stock_Quantity": r.Standard_Stock_Quantity,
+            "Standard_Inventory_Limit": r.Standard_Inventory_Limit,
+            "Standard_Stock_Minimum_Quantity": r.Standard_Stock_Minimum_Quantity,
+            
+        })
+    return jsonify(data)

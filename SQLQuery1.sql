@@ -83,3 +83,70 @@ create table spare_capacity_weekly(
 select * from spare_capacity_weekly;
 ALTER TABLE spare_capacity_weekly
 ALTER COLUMN Updated DATETIME NOT NULL;
+
+create table interim_inventory_transition(																									
+	ID INT IDENTITY(1,1) PRIMARY KEY,
+	ASSY_Part_Number	nvarchar(10) NOT NULL UNIQUE,
+	SUBASSY nchar(10) NOT NULL UNIQUE,
+	Manufacturer nvarchar(20) NOT NULL UNIQUE,
+	Shipping_Class nvarchar(20) NOT NULL UNIQUE,
+	Airtight_inspection int NOT NULL,
+	SCU int NOT NULL,
+	Water_Vapor_Inspection int NOT NULL,
+	Characteristics_inspection int NOT NULL,
+	Characteristic_inspection_odd_lot int NOT NULL,
+	Accessories int NOT NULL,
+	FA int NOT NULL,
+	FA_fractional_items int NOT NULL,
+	Visual_inspection int NOT NULL,
+	Updated int NOT NULL,
+);
+
+CREATE TABLE interim_inventory_transition (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    ASSY_Part_Number NVARCHAR(10) NOT NULL,
+    SUBASSY NCHAR(10) NOT NULL,
+    Manufacturer NVARCHAR(20) NOT NULL,
+    Shipping_Class NVARCHAR(20) NOT NULL,
+    Airtight_inspection INT NOT NULL,
+    SCU INT NOT NULL,
+    Water_Vapor_Inspection INT NOT NULL,
+    Characteristics_inspection INT NOT NULL,
+    Characteristic_inspection_odd_lot INT NOT NULL,
+    Accessories INT NOT NULL,
+    FA INT NOT NULL,
+    FA_fractional_items INT NOT NULL,
+    Visual_inspection INT NOT NULL,
+    Updated DATETIME NOT NULL,  -- Changed from INT to DATETIME
+    CONSTRAINT uq_inventory UNIQUE (
+        Updated,
+        ASSY_Part_Number,
+        SUBASSY,
+        Manufacturer,
+        Shipping_Class
+    )
+);
+
+create table interim_inventory_transition(																									
+	ASSY_Part_Number nvarchar(10) NOT NULL PRIMARY KEY,
+	SUBASSY nchar(10) NOT NULL ,
+	Manufacturer nvarchar(20) NOT NULL ,
+	Shipping_Class nvarchar(20) NOT NULL ,
+	Airtight_inspection int NOT NULL,
+	SCU int NOT NULL,
+	Water_Vapor_Inspection int NOT NULL,
+	Characteristics_inspection int NOT NULL,
+	Characteristic_inspection_odd_lot int NOT NULL,
+	Accessories int NOT NULL,
+	FA int NOT NULL,
+	FA_fractional_items int NOT NULL,
+	Visual_inspection int NOT NULL,
+	Updated int NOT NULL,
+);
+
+select * from nox_assy_wip_inventories_history;
+select * from nox_assy_inv_mgt_thresh;
+
+drop table interim_inventory_transition;
+ALTER TABLE interim_inventory_transition
+ALTER COLUMN Updated nvarchar(10) NOT NULL;
