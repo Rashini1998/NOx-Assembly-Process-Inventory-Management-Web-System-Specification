@@ -1,0 +1,14 @@
+trend:
+  filter:
+    conditionSettings: "条件設定"
+    process: "工程（必須）"
+    characteristicsInspection: "待仕掛品"
+    productNumber: "品番（必須）"
+    startDate: "開始日"
+    endDate: "終了日"
+    csv: "csv出力"
+    reset: "リセット"
+  chartOptions:
+    dailyUnit: "日単位"
+    hourUnit: "時単位"
+    
