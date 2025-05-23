@@ -1,5 +1,5 @@
 DEVELOPMENT:
-  DATABASE_URI: "mssql+pyodbc://sa:test123@DESKTOP-QF7OOTB/InventoryManagement?driver=ODBC+Driver+17+for+SQL+Server"
+  DATABASE_URI: "mssql+pyodbc://sa:test123@DESKTOP-QF7OOTB/InventoryManagement?driver=ODBC+Driver+17+for+SQL+Server&charset=utf8"
   REFRESH_INTERVAL_MINUTES: 1
 
 TEST:

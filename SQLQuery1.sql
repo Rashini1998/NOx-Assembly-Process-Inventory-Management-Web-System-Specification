@@ -150,3 +150,105 @@ select * from nox_assy_inv_mgt_thresh;
 drop table interim_inventory_transition;
 ALTER TABLE interim_inventory_transition
 ALTER COLUMN Updated nvarchar(10) NOT NULL;
+
+SELECT DISTINCT Inventory_Management_Group_Name FROM nox_assy_inv_mgt_thresh;
+SHOW CREATE TABLE nox_assy_inv_mgt_thresh;
+ALTER TABLE nox_assy_inv_mgt_thresh CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+
+
+SELECT DISTINCT Inventory_Management_Group_Name 
+FROM nox_assy_inv_mgt_thresh;
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'nox_assy_inv_mgt_thresh';
+
+
+SELECT COUNT(*) FROM nox_assy_inv_mgt_thresh;
+
+
+
+
+select * from nox_assy_inv_mgt_thresh;
+
+
+SELECT 
+    -- From WIP_Inventories
+    W.ASSY_Part_Number AS ASSYPartNumber,
+    W.SUBASSY,
+    W.Manufacturer,
+    W.Shipping_Class AS ShippingClass,
+    W.Airtight_inspection AS AirtightInspection,
+    W.SCU,
+    W.Water_Vapor_Inspection AS WaterVaporInspection,
+    W.Characteristics_inspection AS CharacteristicsInspection,
+    W.Characteristic_inspection_odd_lot AS CharacteristicInspectionOddLot,
+    W.Accessories,
+    W.FA,
+    W.FA_fractional_items AS FAFractionalItems,
+    W.Visual_inspection AS VisualInspection,
+    W.Updated,
+
+    -- From IITS_Master (can be NULL)
+    I.Inventory_Management_Group_Name AS InventoryManagementGroupName,
+    I.Standard_Stock_Quantity AS StandardStockQuantity,
+    I.Standard_Inventory_Limit AS StandardInventoryLimit,
+    I.Standard_Stock_Minimum_Quantity AS StandardStockMinimumQuantity
+
+FROM 
+    nox_assy_wip_inventories_history W
+LEFT OUTER JOIN 
+    nox_assy_inv_mgt_thresh I
+    ON W.ASSY_Part_Number = I.Part_Number;
+
+
+SELECT 
+    W.ASSY_Part_Number AS ASSYPartNumber,
+    W.SUBASSY,
+    W.Manufacturer,
+    W.Shipping_Class AS ShippingClass,
+    W.Airtight_inspection AS AirtightInspection,
+    W.SCU,
+    W.Water_Vapor_Inspection AS WaterVaporInspection,
+    W.Characteristics_inspection AS CharacteristicsInspection,
+    W.Characteristic_inspection_odd_lot AS CharacteristicInspectionOddLot,
+    W.Accessories,
+    W.FA,
+    W.FA_fractional_items AS FAFractionalItems,
+    W.Visual_inspection AS VisualInspection,
+    W.Updated,
+
+    I.Inventory_Management_Group_Name AS InventoryManagementGroupName,
+    I.Standard_Stock_Quantity AS StandardStockQuantity,
+    I.Standard_Inventory_Limit AS StandardInventoryLimit,
+    I.Standard_Stock_Minimum_Quantity AS StandardStockMinimumQuantity
+
+INTO all_new_interim_transactions
+FROM 
+    nox_assy_wip_inventories_history W
+LEFT OUTER JOIN 
+    nox_assy_inv_mgt_thresh I
+    ON W.ASSY_Part_Number = I.Part_Number;
+
+
+
+
+
+select * from all_new_interim_transactions;
+
+select distinct InventoryManagementGroupName from all_new_interim_transactions;
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'all_new_interim_transactions';
+
+ALTER TABLE all_new_interim_transactions
+ALTER COLUMN InventoryManagementGroupName nvarchar(40) ;
+
+SELECT InventoryManagementGroupName, COUNT(*) 
+FROM new_inventory_table 
+GROUP BY InventoryManagementGroupName;
+
+
+drop table new_inventory_table;

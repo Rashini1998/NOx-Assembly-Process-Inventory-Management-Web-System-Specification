@@ -7,10 +7,12 @@ from src.models.status_model import LabelStatus
 from src.models.inventory_availability_model import InventoryAvailability
 from src.models.wip_inventories_history_model import WIP_Inventories
 from src.models.IITS_Master_model import IITS_Master
+from src.models.New_Inventory_Master import New_Inventory_Master
 from src import db
 from flask import current_app
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
+from sqlalchemy import text
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -165,9 +167,15 @@ def get_wip_inventories_histories():
     return jsonify(data)
 
 # Get inventory availability data for Vue table
-@inventory_bp.route('/api/iits-master', methods=['GET'])
+
+@inventory_bp.route('/api/iitsMaster', methods=['GET'])
 def get_iits_master():
     records = IITS_Master.query.all()
+    print("Total records fetched from DB:", len(records))
+    
+    group_names = set(r.Inventory_Management_Group_Name for r in records)
+    print("Group names retrieved:", group_names)
+
     data = []
     for r in records:
         data.append({
@@ -176,43 +184,68 @@ def get_iits_master():
             "Standard_Stock_Quantity": r.Standard_Stock_Quantity,
             "Standard_Inventory_Limit": r.Standard_Inventory_Limit,
             "Standard_Stock_Minimum_Quantity": r.Standard_Stock_Minimum_Quantity,
-            
+        })
+
+    print("Total data sent in response:", len(data))
+    return jsonify(data)
+
+
+@inventory_bp.route('/api/raw_iits_test', methods=['GET'])
+def raw_iits_test():
+    result = db.session.execute(text("SELECT DISTINCT Inventory_Management_Group_Name FROM nox_assy_inv_mgt_thresh"))
+    groups = [row[0] for row in result]
+    print("Distinct groups from raw SQL:", groups)
+    
+    all_rows = db.session.execute(text("SELECT * FROM nox_assy_inv_mgt_thresh"))
+    all_rows_list = [dict(row) for row in all_rows]
+    print(f"Total rows fetched with raw SQL: {len(all_rows_list)}")
+    
+    return jsonify({
+        "distinct_groups": groups,
+        "total_rows": len(all_rows_list),
+        "sample_row": all_rows_list[0] if all_rows_list else None
+    })
+
+@inventory_bp.route('/api/all-new-interim-transactions', methods=['GET'])
+def get_new_inventory():
+    records = New_Inventory_Master.query.all()
+    print("Total records:", len(records))
+    data = []
+    for r in records:
+        print("IM Group:", r.InventoryManagementGroupName)
+        data.append({
+                "ASSYPartNumber" : r.ASSYPartNumber,
+                "SUBASSY" : r.SUBASSY,
+                "Manufacturer" : r.Manufacturer,
+                "ShippingClass" : r.ShippingClass,
+                "AirtightInspection": r.AirtightInspection,
+                "SCU" : r.SCU,
+                "WaterVaporInspection" : r.WaterVaporInspection,
+                "CharacteristicsInspection" : r.CharacteristicsInspection,
+                "CharacteristicInspectionOddLot" : r.CharacteristicInspectionOddLot,
+                "Accessories" : r.Accessories,
+                "FA" : r.FA,
+                "FAFractionalItems" : r.FAFractionalItems,
+                "VisualInspection" : r.VisualInspection,
+                # "Updated" : r.Updated,
+                "Updated": r.Updated.isoformat() if r.Updated else None,
+                "InventoryManagementGroupName" : r.InventoryManagementGroupName,
+                "StandardStockQuantity" : r.StandardStockQuantity,
+                "StandardInventoryLimit" : r.StandardInventoryLimit,
+                "StandardStockMinimumQuantity" : r.StandardStockMinimumQuantity,
+
         })
     return jsonify(data)
 
-@inventory_bp.route('/api/inventory-full', methods=['GET'])
-def get_full_inventory_data():
-    results = (
-        db.session.query(WIP_Inventories, IITS_Master)
-        .outerjoin(IITS_Master, WIP_Inventories.ASSY_Part_Number == IITS_Master.Part_Number)
-        .all()
-    )
 
-    data = []
-    for wip, iits in results:
-        row = {
-            # From WIP_Inventories
-            "ASSYPartNumber": wip.ASSY_Part_Number,
-            "SUBASSY": wip.SUBASSY,
-            "Manufacturer": wip.Manufacturer,
-            "ShippingClass": wip.Shipping_Class,
-            "AirtightInspection": wip.Airtight_inspection,
-            "SCU": wip.SCU,
-            "WaterVaporInspection": wip.Water_Vapor_Inspection,
-            "CharacteristicsInspection": wip.Characteristics_inspection,
-            "CharacteristicInspectionOddLot": wip.Characteristic_inspection_odd_lot,
-            "Accessories": wip.Accessories,
-            "FA": wip.FA,
-            "FAFractionalItems": wip.FA_fractional_items,
-            "VisualInspection": wip.Visual_inspection,
-            "Updated": wip.Updated,
+@inventory_bp.route('/api/distinct-im-groups', methods=['GET'])
+def distinct_groups():
+    result = db.session.execute(text("SELECT DISTINCT InventoryManagementGroupName FROM all_new_interim_transactions"))
+    return jsonify([row[0] for row in result])
 
-            # From IITS_Master (may be None if not matched)
-            "InventoryManagementGroupName": iits.Inventory_Management_Group_Name if iits else None,
-            "StandardStockQuantity": iits.Standard_Stock_Quantity if iits else None,
-            "StandardInventoryLimit": iits.Standard_Inventory_Limit if iits else None,
-            "StandardStockMinimumQuantity": iits.Standard_Stock_Minimum_Quantity if iits else None,
-        }
-        data.append(row)
 
-    return jsonify(data)
+
+@inventory_bp.route('/api/all-data', methods=['GET'])
+def all_groups():
+    results = db.session.execute(text("SELECT *  FROM all_new_interim_transactions"))
+    return jsonify([row[0] for row in results])
