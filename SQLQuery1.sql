@@ -233,6 +233,11 @@ LEFT OUTER JOIN
 
 
 
+ALTER TABLE all_new_interim_transactions
+ADD id INT IDENTITY(1,1);
+
+ALTER TABLE all_new_interim_transactions
+ADD CONSTRAINT PK_all_new_interim_transactions PRIMARY KEY (id);
 
 
 select * from all_new_interim_transactions;
@@ -252,3 +257,24 @@ GROUP BY InventoryManagementGroupName;
 
 
 drop table new_inventory_table;
+
+SELECT  COUNT(*) as count
+FROM all_new_interim_transactions 
+
+
+SELECT *
+FROM all_new_interim_transactions
+WHERE InventoryManagementGroupName = '?????'
+
+
+SELECT c.COLUMN_NAME
+FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON tc.CONSTRAINT_NAME = ccu.CONSTRAINT_NAME
+JOIN INFORMATION_SCHEMA.COLUMNS c ON c.TABLE_NAME = tc.TABLE_NAME AND c.COLUMN_NAME = ccu.COLUMN_NAME
+WHERE tc.TABLE_NAME = 'all_new_interim_transactions' AND tc.CONSTRAINT_TYPE = 'PRIMARY KEY';
+
+
+SELECT ASSYPartNumber,  COUNT(*)
+FROM all_new_interim_transactions
+GROUP BY ASSYPartNumber
+HAVING COUNT(*) > 1;

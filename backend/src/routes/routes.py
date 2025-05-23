@@ -209,10 +209,10 @@ def raw_iits_test():
 @inventory_bp.route('/api/all-new-interim-transactions', methods=['GET'])
 def get_new_inventory():
     records = New_Inventory_Master.query.all()
-    print("Total records:", len(records))
+    # count = len(records)  # Correct way to count records
+    # print("Count:", count)
     data = []
     for r in records:
-        print("IM Group:", r.InventoryManagementGroupName)
         data.append({
                 "ASSYPartNumber" : r.ASSYPartNumber,
                 "SUBASSY" : r.SUBASSY,
@@ -238,14 +238,37 @@ def get_new_inventory():
     return jsonify(data)
 
 
-@inventory_bp.route('/api/distinct-im-groups', methods=['GET'])
-def distinct_groups():
-    result = db.session.execute(text("SELECT DISTINCT InventoryManagementGroupName FROM all_new_interim_transactions"))
-    return jsonify([row[0] for row in result])
+# @inventory_bp.route('/api/distinct-im-groups', methods=['GET'])
+# def distinct_groups():
+#     result = db.session.execute(text("SELECT DISTINCT InventoryManagementGroupName FROM all_new_interim_transactions"))
+#     return jsonify([row[0] for row in result])
 
 
 
-@inventory_bp.route('/api/all-data', methods=['GET'])
-def all_groups():
-    results = db.session.execute(text("SELECT *  FROM all_new_interim_transactions"))
-    return jsonify([row[0] for row in results])
+# @inventory_bp.route('/api/all-data', methods=['GET'])
+# def all_groups():
+#     results = db.session.execute(text("SELECT *  FROM all_new_interim_transactions"))
+#     return jsonify([row[0] for row in results])
+
+
+@inventory_bp.route('/api/all-results', methods=['GET'])
+def get_new_inventory_data():
+    # Count total rows
+    result = db.session.execute(text("SELECT COUNT(*) FROM all_new_interim_transactions"))
+    count = result.scalar()
+    print("Total rows in DB table:", count)
+
+    # Fetch limited rows with SQL Server syntax
+    result2 = db.session.execute(text("SELECT TOP 10 * FROM all_new_interim_transactions"))
+    rows = result2.fetchall()
+
+    # Get column names from the ResultProxy metadata
+    keys = result2.keys()
+
+    print("Sample rows:", rows)
+    print("Column keys:", keys)
+
+    # Map rows to dicts manually
+    data = [dict(zip(keys, row)) for row in rows]
+
+    return jsonify(data)

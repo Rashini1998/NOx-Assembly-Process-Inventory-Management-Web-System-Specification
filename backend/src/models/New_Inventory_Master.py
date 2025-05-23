@@ -4,7 +4,8 @@ from datetime import datetime
 class New_Inventory_Master(db.Model):
     __tablename__ = 'all_new_interim_transactions'
 
-    ASSYPartNumber = db.Column(db.String(10), primary_key=True, nullable=False)  # nvarchar(10)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    ASSYPartNumber = db.Column(db.String(10), nullable=False)  # nvarchar(10)
     SUBASSY = db.Column(db.String(10))  # nchar(10)
     Manufacturer = db.Column(db.String(20), nullable=False)  # nvarchar(20)
     ShippingClass = db.Column(db.String(20), nullable=False)  # nvarchar(20)
