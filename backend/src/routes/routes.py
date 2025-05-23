@@ -9,6 +9,8 @@ from src.models.wip_inventories_history_model import WIP_Inventories
 from src.models.IITS_Master_model import IITS_Master
 from src import db
 from flask import current_app
+from sqlalchemy.orm import joinedload
+from sqlalchemy import func
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -176,4 +178,41 @@ def get_iits_master():
             "Standard_Stock_Minimum_Quantity": r.Standard_Stock_Minimum_Quantity,
             
         })
+    return jsonify(data)
+
+@inventory_bp.route('/api/inventory-full', methods=['GET'])
+def get_full_inventory_data():
+    results = (
+        db.session.query(WIP_Inventories, IITS_Master)
+        .outerjoin(IITS_Master, WIP_Inventories.ASSY_Part_Number == IITS_Master.Part_Number)
+        .all()
+    )
+
+    data = []
+    for wip, iits in results:
+        row = {
+            # From WIP_Inventories
+            "ASSYPartNumber": wip.ASSY_Part_Number,
+            "SUBASSY": wip.SUBASSY,
+            "Manufacturer": wip.Manufacturer,
+            "ShippingClass": wip.Shipping_Class,
+            "AirtightInspection": wip.Airtight_inspection,
+            "SCU": wip.SCU,
+            "WaterVaporInspection": wip.Water_Vapor_Inspection,
+            "CharacteristicsInspection": wip.Characteristics_inspection,
+            "CharacteristicInspectionOddLot": wip.Characteristic_inspection_odd_lot,
+            "Accessories": wip.Accessories,
+            "FA": wip.FA,
+            "FAFractionalItems": wip.FA_fractional_items,
+            "VisualInspection": wip.Visual_inspection,
+            "Updated": wip.Updated,
+
+            # From IITS_Master (may be None if not matched)
+            "InventoryManagementGroupName": iits.Inventory_Management_Group_Name if iits else None,
+            "StandardStockQuantity": iits.Standard_Stock_Quantity if iits else None,
+            "StandardInventoryLimit": iits.Standard_Inventory_Limit if iits else None,
+            "StandardStockMinimumQuantity": iits.Standard_Stock_Minimum_Quantity if iits else None,
+        }
+        data.append(row)
+
     return jsonify(data)
