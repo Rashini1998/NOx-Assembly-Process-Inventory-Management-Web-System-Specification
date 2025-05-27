@@ -1,4 +1,4 @@
-create database InventoryManagement;
+﻿create database InventoryManagement;
 Use InventoryManagement;
 drop database InventoryManagement;
 create table inventory_history(
@@ -144,8 +144,63 @@ create table interim_inventory_transition(
 	Updated int NOT NULL,
 );
 
+            "ASSY品番": r.,
+            "SUBASSY品番": r.,
+            "メーカ": r.,
+            "出荷区分": r.,
+            "気密検査": r.,
+            "SCU": r.,
+            "水蒸気検査": r.,
+            "特性検査": r.,
+            "特性検査端数品": r.,
+            "アクセサリ": r.,
+            "FA": r.FA,
+            "FA端数品": r.,
+            "外観検査": r.,
+            "更新日時": r.,
+
 select * from nox_assy_wip_inventories_history;
+
+SELECT  *
+FROM nox_assy_wip_inventories_history
+WHERE ASSY品番 = '1144780280' AND 更新日時 = '2024-09-19 00:00:' ;
+
+
+EXEC sp_rename 'nox_assy_wip_inventories_history.ASSY_Part_Number', N'ASSY品番', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.SUBASSY', N'SUBASSY品番', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Manufacturer', N'メーカ', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Shipping_Class', N'出荷区分', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Airtight_inspection', N'気密検査', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.SCU', N'SCU', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Water_Vapor_Inspection', N'水蒸気検査', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Characteristics_inspection', N'特性検査', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Characteristic_inspection_odd_lot', N'特性検査端数品', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Accessories', N'アクセサリ', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.FA', N'FA', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.FA_fractional_items', N'FA端数品', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Visual_inspection', N'外観検査', 'COLUMN';
+EXEC sp_rename 'nox_assy_wip_inventories_history.Updated', N'更新日時', 'COLUMN';
+
+
+ALTER TABLE nox_assy_wip_inventories_history
+ADD CONSTRAINT pk_nox_assy_wip_composite
+PRIMARY KEY (ASSY_Part_Number, SUBASSY, Manufacturer, Shipping_Class, Updated);
+
+
 select * from nox_assy_inv_mgt_thresh;
+
+EXEC sp_rename 'nox_assy_inv_mgt_thresh.Part_Number', N'品番', 'COLUMN';
+EXEC sp_rename 'nox_assy_inv_mgt_thresh.Inventory_Management_Group_Name', N'在庫管理グループ名称', 'COLUMN';
+EXEC sp_rename 'nox_assy_inv_mgt_thresh.Standard_Stock_Quantity', N'基準在庫数', 'COLUMN';
+EXEC sp_rename 'nox_assy_inv_mgt_thresh.Standard_Inventory_Limit', N'基準在庫上限数', 'COLUMN';
+EXEC sp_rename 'nox_assy_inv_mgt_thresh.Standard_Stock_Minimum_Quantity', N'基準在庫下限数', 'COLUMN';
+
+SELECT DISTINCT 在庫管理グループ名称 
+FROM nox_assy_inv_mgt_thresh;
+
+ALTER TABLE nox_assy_inv_mgt_thresh
+ADD CONSTRAINT pk_nox_assy_inv_mgt_thresh
+PRIMARY KEY (Part_Number, Inventory_Management_Group_Name);
 
 drop table interim_inventory_transition;
 ALTER TABLE interim_inventory_transition

@@ -7,12 +7,14 @@ from src.models.status_model import LabelStatus
 from src.models.inventory_availability_model import InventoryAvailability
 from src.models.wip_inventories_history_model import WIP_Inventories
 from src.models.IITS_Master_model import IITS_Master
-from src.models.New_Inventory_Master import New_Inventory_Master
+# from src.models.New_Inventory_Master import New_Inventory_Master
 from src import db
 from flask import current_app
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 from sqlalchemy import text
+from datetime import datetime,timedelta
+from collections import defaultdict
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -148,42 +150,115 @@ def get_wip_inventories_histories():
     data = []
     for r in records:
         data.append({
-            "ASSYPartNumber": r.ASSY_Part_Number,
-            "SUBASSY": r.SUBASSY,
-            "Manufacturer": r.Manufacturer,
-            "ShippingClass": r.Shipping_Class,
-            "AirtightInspection": r.Airtight_inspection,
+            # "ASSYPartNumber": r.ASSY_Part_Number,
+            # "SUBASSY": r.SUBASSY,
+            # "Manufacturer": r.Manufacturer,
+            # "ShippingClass": r.Shipping_Class,
+            # "AirtightInspection": r.Airtight_inspection,
+            # "SCU": r.SCU,
+            # "WaterVaporInspection": r.Water_Vapor_Inspection,
+            # "CharacteristicsInspection": r.Characteristics_inspection,
+            # "CharacteristicInspectionOddLot": r.Characteristic_inspection_odd_lot,
+            # "Accessories": r.Accessories,
+            # "FA": r.FA,
+            # "FAFractionalItems": r.FA_fractional_items,
+            # "VisualInspection": r.Visual_inspection,
+            # "Updated": r.Updated,
+            "ASSY品番": r.ASSY品番,
+            "SUBASSY品番": r.SUBASSY品番,
+            "メーカ": r.メーカ,
+            "出荷区分": r.出荷区分,
+            "気密検査": r.気密検査,
             "SCU": r.SCU,
-            "WaterVaporInspection": r.Water_Vapor_Inspection,
-            "CharacteristicsInspection": r.Characteristics_inspection,
-            "CharacteristicInspectionOddLot": r.Characteristic_inspection_odd_lot,
-            "Accessories": r.Accessories,
+            "水蒸気検査": r.水蒸気検査,
+            "特性検査": r.特性検査,
+            "特性検査端数品": r.特性検査端数品,
+            "アクセサリ": r.アクセサリ,
             "FA": r.FA,
-            "FAFractionalItems": r.FA_fractional_items,
-            "VisualInspection": r.Visual_inspection,
-            "Updated": r.Updated,
+            "FA端数品": r.FA端数品,
+            "外観検査": r.外観検査,
+            "更新日時": r.更新日時,
 
         })
     return jsonify(data)
 
-# Get inventory availability data for Vue table
+@inventory_bp.route('/api/wip-inventories-histories-new', methods=['GET'])
+def get_wip_inventories_histories_new():
+    part_number = request.args.get('partNumber')
+    process = request.args.get('process')
+    start_date = request.args.get('startDate')
+    end_date = request.args.get('endDate')
 
+    # Validate required parameters
+    if not part_number or not process:
+        return jsonify({"error": "partNumber and process are required"}), 400
+
+    # Validate the process parameter
+    valid_processes = [
+        '気密検査', 'SCU', '水蒸気検査', '特性検査', 
+        '特性検査端数品', 'アクセサリ', 'FA', 'FA端数品', '外観検査'
+    ]
+    
+    if process not in valid_processes:
+        return jsonify({"error": f"Invalid process. Valid options: {', '.join(valid_processes)}"}), 400
+
+    # Validate date parameters
+    if not start_date or not end_date:
+        return jsonify({"error": "Both startDate and endDate are required"}), 400
+
+    try:
+        start_dt = datetime.strptime(start_date, "%Y/%m/%d")
+        end_dt = datetime.strptime(end_date, "%Y/%m/%d") + timedelta(days=1)
+    except ValueError as e:
+        return jsonify({"error": "Invalid date format. Use YYYY/MM/DD"}), 400
+
+    # Build the query
+    try:
+        records = WIP_Inventories.query.filter(
+            WIP_Inventories.ASSY品番 == part_number,
+            WIP_Inventories.更新日時 >= start_dt,
+            WIP_Inventories.更新日時 < end_dt
+        ).with_entities(
+            WIP_Inventories.更新日時,
+            getattr(WIP_Inventories, process)
+        ).order_by(WIP_Inventories.更新日時.asc()).all()
+
+        # Format the response
+        data = [{
+            "timestamp": record.更新日時.isoformat() if record.更新日時 else None,
+            "value": getattr(record, process)
+        } for record in records]
+
+        return jsonify({
+            "success": True,
+            "partNumber": part_number,
+            "process": process,
+            "startDate": start_date,
+            "endDate": end_date,
+            "data": data,
+            "count": len(data)
+        })
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+    
+
+# Get inventory availability data for Vue table
 @inventory_bp.route('/api/iitsMaster', methods=['GET'])
 def get_iits_master():
     records = IITS_Master.query.all()
-    print("Total records fetched from DB:", len(records))
-    
-    group_names = set(r.Inventory_Management_Group_Name for r in records)
-    print("Group names retrieved:", group_names)
 
     data = []
     for r in records:
         data.append({
-            "Part_Number": r.Part_Number,
-            "Inventory_Management_Group_Name": r.Inventory_Management_Group_Name,
-            "Standard_Stock_Quantity": r.Standard_Stock_Quantity,
-            "Standard_Inventory_Limit": r.Standard_Inventory_Limit,
-            "Standard_Stock_Minimum_Quantity": r.Standard_Stock_Minimum_Quantity,
+            "品番": r.品番,
+            "在庫管理グループ名称": r.在庫管理グループ名称,
+            "基準在庫数": r.基準在庫数,
+            "基準在庫上限数": r.基準在庫上限数,
+            "基準在庫下限数": r.基準在庫下限数,
         })
 
     print("Total data sent in response:", len(data))
@@ -206,51 +281,6 @@ def raw_iits_test():
         "sample_row": all_rows_list[0] if all_rows_list else None
     })
 
-@inventory_bp.route('/api/all-new-interim-transactions', methods=['GET'])
-def get_new_inventory():
-    records = New_Inventory_Master.query.all()
-    # count = len(records)  # Correct way to count records
-    # print("Count:", count)
-    data = []
-    for r in records:
-        data.append({
-                "ASSYPartNumber" : r.ASSYPartNumber,
-                "SUBASSY" : r.SUBASSY,
-                "Manufacturer" : r.Manufacturer,
-                "ShippingClass" : r.ShippingClass,
-                "AirtightInspection": r.AirtightInspection,
-                "SCU" : r.SCU,
-                "WaterVaporInspection" : r.WaterVaporInspection,
-                "CharacteristicsInspection" : r.CharacteristicsInspection,
-                "CharacteristicInspectionOddLot" : r.CharacteristicInspectionOddLot,
-                "Accessories" : r.Accessories,
-                "FA" : r.FA,
-                "FAFractionalItems" : r.FAFractionalItems,
-                "VisualInspection" : r.VisualInspection,
-                # "Updated" : r.Updated,
-                "Updated": r.Updated.isoformat() if r.Updated else None,
-                "InventoryManagementGroupName" : r.InventoryManagementGroupName,
-                "StandardStockQuantity" : r.StandardStockQuantity,
-                "StandardInventoryLimit" : r.StandardInventoryLimit,
-                "StandardStockMinimumQuantity" : r.StandardStockMinimumQuantity,
-
-        })
-    return jsonify(data)
-
-
-# @inventory_bp.route('/api/distinct-im-groups', methods=['GET'])
-# def distinct_groups():
-#     result = db.session.execute(text("SELECT DISTINCT InventoryManagementGroupName FROM all_new_interim_transactions"))
-#     return jsonify([row[0] for row in result])
-
-
-
-# @inventory_bp.route('/api/all-data', methods=['GET'])
-# def all_groups():
-#     results = db.session.execute(text("SELECT *  FROM all_new_interim_transactions"))
-#     return jsonify([row[0] for row in results])
-
-
 @inventory_bp.route('/api/all-results', methods=['GET'])
 def get_new_inventory_data():
     # Count total rows
@@ -272,3 +302,4 @@ def get_new_inventory_data():
     data = [dict(zip(keys, row)) for row in rows]
 
     return jsonify(data)
+

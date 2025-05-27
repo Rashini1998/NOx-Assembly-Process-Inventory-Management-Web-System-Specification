@@ -23,3 +23,4 @@ class New_Inventory_Master(db.Model):
     StandardStockQuantity = db.Column(db.String(50))  # nvarchar(50)
     StandardInventoryLimit = db.Column(db.String(50))  # nvarchar(50)
     StandardStockMinimumQuantity = db.Column(db.String(50))  # nvarchar(50)
+
