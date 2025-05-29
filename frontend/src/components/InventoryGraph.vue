@@ -18,14 +18,17 @@
     </div>
     <div class="x-axis-labels-container" ref="xAxisLabels">
       <div class="assy-info">
-        <div>ASSY品番</div>
-        <div>{{ props.partNumber }}</div>
+        <div class="nameLabel">ASSY品番</div>
+        <div class="valueLable">{{ props.partNumber }}</div>
       </div>
       <div class="x-axis-scroll" ref="xAxisScroll">
-        <div class="labels-wrapper">
-          <div class="dates-row"></div>
-          <div class="times-row"></div>
-        </div>
+        <table class="labels-table">
+          <tbody>
+            <tr class="dates-row"></tr>
+            <tr class="times-row"></tr>
+            <tr class="values-row"></tr>
+          </tbody>
+        </table>
       </div>
     </div>
     <div v-if="!hasData" class="no-data-message">
@@ -129,6 +132,9 @@ const createChart = async () => {
   // Return if canvas element is not available
   if (!chartCanvas.value) return;
 
+  // Fetch threshold data
+  const thresholdData = await fetchThresholdData();
+
   // Process the data (will handle empty data case)
   const chartData = processApiData(apiData.value);
 
@@ -144,10 +150,59 @@ const createChart = async () => {
   chartCanvas.value.height = 500;
 
   const ctx = chartCanvas.value.getContext('2d');
-  chartCanvas.value.style.width = `${canvasWidth}px`;
-  chartCanvas.value.style.height = '500px';
-  chartCanvas.value.width = canvasWidth;
-  chartCanvas.value.height = 500;
+
+  // Calculate max value for y-axis scaling
+  const maxDataValue = Math.max(...chartData.datasets[0].data.filter(val => val !== null));
+  const upperLimit = thresholdData ? parseFloat(thresholdData['基準在庫上限数']) : 0;
+  const yAxisMax = Math.max(maxDataValue * 1.1, upperLimit * 1.1) || 10;
+
+
+  // Create annotations for the threshold lines
+  const annotations = {};
+
+  if (thresholdData) {
+    annotations.annotations = {
+      upperLimit: {
+        type: 'line',
+        yMin: parseFloat(thresholdData['基準在庫上限数']),
+        yMax: parseFloat(thresholdData['基準在庫上限数']),
+        borderColor: '#febf03',
+        borderWidth: 2,
+        borderDash: [6, 6],
+        label: {
+          content: `Upper Limit: ${thresholdData['基準在庫上限数']}`,
+          enabled: true,
+          position: 'right'
+        }
+      },
+      lowerLimit: {
+        type: 'line',
+        yMin: parseFloat(thresholdData['基準在庫下限数']),
+        yMax: parseFloat(thresholdData['基準在庫下限数']),
+
+        borderColor: '#f92020',
+        borderWidth: 2,
+        borderDash: [6, 6],
+        label: {
+          content: `Lower Limit: ${thresholdData['基準在庫下限数']}`,
+          enabled: true,
+          position: 'right'
+        }
+      },
+      standard: {
+        type: 'line',
+        yMin: parseFloat(thresholdData['基準在庫数']),
+        yMax: parseFloat(thresholdData['基準在庫数']),
+        borderColor: '#00ae4b',
+        borderWidth: 2,
+        label: {
+          content: `Standard: ${thresholdData['基準在庫数']}`,
+          enabled: true,
+          position: 'right'
+        }
+      }
+    };
+  }
 
   if (dataLength > 10 && scrollContainer.value) {
     // scrollContainer.value.scrollLeft = canvasWidth;
@@ -235,6 +290,7 @@ const createChart = async () => {
       maintainAspectRatio: false,
       layout: {
         padding: {
+          left: 40,
           bottom: 40
         }
       },
@@ -246,10 +302,12 @@ const createChart = async () => {
         tooltip: {
           callbacks: {
             label: function (context) {
-              return `${context.raw}`;
+              // return `${context.raw}`;
+              return Number(context.raw).toFixed(2);
             }
           }
-        }
+        },
+        annotation: annotations
       },
       scales: {
         y: {
@@ -262,7 +320,21 @@ const createChart = async () => {
             display: true,
           },
           min: 0,
-          max: Math.max(...chartData.datasets[0].data.filter(val => val !== null)) * 1.1 || 10
+          // max: Math.max(...chartData.datasets[0].data.filter(val => val !== null)) * 1.1 || 10,
+          max: yAxisMax,
+          ticks: {
+            precision: 0,
+            callback: function (value) {
+              if (Number.isInteger(value)) {
+                return value;
+              }
+              // Otherwise show up to 2 decimal places
+              return '';
+            },
+            stepSize: 1,
+            // count: Math.ceil(Math.max(...chartData.datasets[0].data.filter(val => val !== null)) * 1.1) || 10
+            count: Math.ceil(yAxisMax)
+          }
         },
         x: {
           grid: {
@@ -339,6 +411,25 @@ const fetchGraphData = async () => {
     }
   }
 };
+
+const fetchThresholdData = async () => {
+  try {
+    if (!props.partNumber || !props.process) return null;
+
+    const response = await axios.get('http://localhost:5000/api/nox_assy_inv_mgt_thresh', {
+      params: {
+        partNumber: props.partNumber,
+        process: props.process
+      }
+    });
+
+    return response.data && response.data.length > 0 ? response.data[0] : null;
+  } catch (error) {
+    console.error('Error fetching threshold data:', error);
+    return null;
+  }
+};
+
 
 watch(() => [
   props.partNumber,
@@ -424,87 +515,57 @@ const setupScrollbar = () => {
   window.addEventListener('resize', updateScrollbar);
 };
 
-// const setupXAxisLabels = (labels) => {
-//   if (!labels || !labels.length || !scrollContainer.value || !chartCanvas.value) return;
-
-//   const datesRow = document.querySelector('.dates-row');
-//   const timesRow = document.querySelector('.times-row');
-
-//   // Clear existing labels
-//   datesRow.innerHTML = '';
-//   timesRow.innerHTML = '';
-
-//   // Calculate bar width and spacing
-//   const barWidth = 60; // Should match your chart's bar width
-//   const barSpacing = 15; // Should match your chart's bar spacing
-
-//   labels.forEach(([date, time]) => {
-//     // Create date label
-//     const dateLabel = document.createElement('div');
-//     dateLabel.className = 'date-label';
-//     dateLabel.textContent = date;
-//     dateLabel.style.width = `${barWidth + barSpacing}px`;
-//     datesRow.appendChild(dateLabel);
-
-//     // Create time label
-//     const timeLabel = document.createElement('div');
-//     timeLabel.className = 'time-label';
-//     timeLabel.textContent = time;
-//     timeLabel.style.width = `${barWidth + barSpacing}px`;
-//     timesRow.appendChild(timeLabel);
-//   });
-
-//   // Sync scrolling
-//   scrollContainer.value.addEventListener('scroll', () => {
-//     const xAxisLabels = document.querySelector('.x-axis-labels-container');
-//     if (xAxisLabels) {
-//       xAxisLabels.scrollLeft = scrollContainer.value.scrollLeft;
-//     }
-//   });
-// };
 const setupXAxisLabels = (labels) => {
   const datesRow = document.querySelector('.dates-row');
   const timesRow = document.querySelector('.times-row');
-  if (!datesRow || !timesRow) return;
+  const valuesRow = document.querySelector('.values-row');
+  if (!datesRow || !timesRow || !valuesRow) return;
 
   // Clear previous
   datesRow.innerHTML = '';
   timesRow.innerHTML = '';
+  valuesRow.innerHTML = '';
 
-  const labelWidth = 75;
+  const barWidth = 60;
+  const barSpacing = 15;
+  const cellWidth = barWidth + barSpacing;
 
-  labels.forEach(([date, time]) => {
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'date-label';
-    dateDiv.style.width = `${labelWidth}px`;
-    dateDiv.textContent = date;
+  labels.forEach(([date, time], index) => {
+    // Date cell
+    const dateCell = document.createElement('td');
+    dateCell.className = 'date-label';
+    dateCell.style.width = `${cellWidth}px`;
+    dateCell.textContent = date;
+    datesRow.appendChild(dateCell);
 
-    const timeDiv = document.createElement('div');
-    timeDiv.className = 'time-label';
-    timeDiv.style.width = `${labelWidth}px`;
-    timeDiv.textContent = time;
+    // Time cell
+    const timeCell = document.createElement('td');
+    timeCell.className = 'time-label';
+    timeCell.style.width = `${cellWidth}px`;
+    timeCell.textContent = time;
+    timesRow.appendChild(timeCell);
 
-    datesRow.appendChild(dateDiv);
-    timesRow.appendChild(timeDiv);
+
+    const valueCell = document.createElement('td');
+    valueCell.className = 'value-label';
+    valueCell.style.width = `${cellWidth}px`;
+    if (apiData.value && apiData.value[index] && apiData.value[index].value !== undefined) {
+      valueCell.textContent = Number(apiData.value[index].value).toFixed(0);
+    } else {
+      valueCell.textContent = '-';
+    }
+    valuesRow.appendChild(valueCell);
   });
 
-  // const scrollSync = () => {
-  //   const xAxisScroll = document.querySelector('.x-axis-scroll');
-  //   if (xAxisScroll && scrollContainer.value) {
-  //     xAxisScroll.scrollLeft = scrollContainer.value.scrollLeft;
-  //   }
-  // };
-
-  // scrollContainer.value.addEventListener('scroll', scrollSync);
+  // Sync scroll
   const syncXAxisLabels = () => {
-    const xAxisScroll = document.querySelector('.labels-wrapper');
+    const xAxisScroll = document.querySelector('.x-axis-scroll');
     if (xAxisScroll && scrollContainer.value) {
-      xAxisScroll.style.transform = `translateX(-${scrollContainer.value.scrollLeft}px)`;
+      xAxisScroll.scrollLeft = scrollContainer.value.scrollLeft;
     }
   };
 
   scrollContainer.value.addEventListener('scroll', syncXAxisLabels);
-
 };
 
 
@@ -547,8 +608,44 @@ const setupXAxisLabels = (labels) => {
 
 .x-axis-scroll {
   /* overflow-x: auto; */
-  overflow: hidden;
+  overflow-x: hidden;
   flex: 1;
+}
+
+.labels-table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  display: block;
+  width: max-content;
+}
+
+.labels-table-new {
+  border-bottom: #1c0808;
+}
+
+.labels-table tbody {
+  display: block;
+  border-bottom: #1c0808;
+}
+
+.labels-table tr {
+  display: block;
+  border-bottom: #1c0808;
+}
+
+.labels-table td {
+  border: 1px solid #1c0808;
+  text-align: center;
+  padding: 4px 0;
+  font-size: 13px;
+  white-space: nowrap;
+  height: 20px;
+  display: inline-block;
+}
+
+.labels-table {
+  display: block;
+  width: max-content;
 }
 
 .labels-wrapper {
@@ -564,7 +661,6 @@ const setupXAxisLabels = (labels) => {
   overflow-y: hidden;
   position: relative;
   scrollbar-width: none;
-  /* Hide scrollbar for Firefox */
 }
 
 /* Scrollbar container styles */
@@ -594,6 +690,31 @@ const setupXAxisLabels = (labels) => {
 .scroll-container::-webkit-scrollbar {
   display: none;
   /* Hide scrollbar for Chrome/Safari */
+}
+
+.process-label {
+  text-align: center;
+  font-size: 12px;
+  color: #333;
+}
+
+.value-label {
+  text-align: center;
+  font-weight: bold !;
+  font-size: 12px;
+  color: black !important;
+  background-color: red !important;
+  padding: 4px 0;
+  border: 1px solid #1c0808;
+  height: 20px;
+  display: inline-block;
+}
+
+.values-row {
+  color: black !important;
+  background-color: red !important;
+  font-weight: bold !important;
+
 }
 
 .no-data-message {
@@ -640,9 +761,9 @@ const setupXAxisLabels = (labels) => {
   display: flex;
   width: 100%;
   overflow: hidden;
-  background-color: #808080;
-  border-top: 2px solid #808080;
-  border-bottom: 2px solid #aaa;
+  /* background-color: #808080; */
+  /* border-top: 2px solid #808080; */
+  /* border-bottom: 2px solid #aaa; */
   font-size: 14px;
 }
 
@@ -652,16 +773,6 @@ const setupXAxisLabels = (labels) => {
 }
 
 .assy-info {
-  /* display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 0 10px;
-  min-width: 120px;
-  background-color: #dcdcdc;
-  position: sticky;
-  left: 0;
-  z-index: 2; */
-
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -674,26 +785,38 @@ const setupXAxisLabels = (labels) => {
   left: 0;
   z-index: 2;
   font-size: 12px;
+  ;
+}
+
+.nameLable {
+  background-color: #808080;
+  margin-bottom: 13px;
+}
+
+.valueLabel {
+  background-color: #d4d4d4 !important;
+}
+
+.assy-info-new {
+  background-color: #dcdcdc;
+  border-color: #808080;
+  font-size: 10px;
+
 }
 
 .dates-row,
 .times-row {
-  /* display: flex;
-  background-color: #dcdcdc; */
-
   display: flex;
   flex-direction: row;
   width: fit-content;
   background-color: #808080;
+  border-bottom: #1c0808;
+  font-weight: bold !important;
+  font-size: 12px;
 }
 
 .date-label,
 .time-label {
-  /* min-width: 60px;
-  text-align: center;
-  padding: 0 15px;
-  white-space: nowrap; */
-
   width: 75px;
   text-align: center;
   padding: 4px 0;

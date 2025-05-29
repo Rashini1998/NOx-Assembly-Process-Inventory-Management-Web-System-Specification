@@ -264,6 +264,37 @@ def get_iits_master():
     print("Total data sent in response:", len(data))
     return jsonify(data)
 
+@inventory_bp.route('/api/nox_assy_inv_mgt_thresh', methods=['GET'])
+def get_threshold_data():
+    # Get query parameters
+    part_number = request.args.get('partNumber')
+    process = request.args.get('process')
+    
+    # Base query
+    query = IITS_Master.query
+    
+    # Apply filters if parameters are provided
+    if part_number:
+        query = query.filter(IITS_Master.品番 == part_number)
+    if process:
+        query = query.filter(IITS_Master.在庫管理グループ名称 == process)
+    
+    # Execute query
+    records = query.all()
+    
+    data = []
+    for r in records:
+        data.append({
+            "品番": r.品番,
+            "在庫管理グループ名称": r.在庫管理グループ名称,
+            "基準在庫数": float(r.基準在庫数) if r.基準在庫数 is not None else None,
+            "基準在庫上限数": float(r.基準在庫上限数) if r.基準在庫上限数 is not None else None,
+            "基準在庫下限数": float(r.基準在庫下限数) if r.基準在庫下限数 is not None else None,
+        })
+    
+    print(f"Threshold data sent in response for part {part_number} and process {process}: {len(data)} records")
+    return jsonify(data)
+
 
 @inventory_bp.route('/api/raw_iits_test', methods=['GET'])
 def raw_iits_test():
