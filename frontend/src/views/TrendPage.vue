@@ -7,7 +7,7 @@
       <div>
         <TrendFilter 
           @search="handleSearch" 
-          @export="exportToCSV" 
+          @export="handleExport" 
           @update-partNumber="selectedPartNumber = $event"
           @update-startDate="selectedStartDate = $event" 
           @update-endDate="selectedEndDate = $event"
@@ -16,6 +16,7 @@
           :processes="uniqueProcesses" 
         />
         <InventoryGraph
+          ref="inventoryGraphRef"
           :partNumber="selectedPartNumber"
           :process="selectedProcess"
           :startDate="selectedStartDate"
@@ -46,7 +47,15 @@ const selectedProcess = ref('');
 // const selectedStartDate = ref('2024/09/24');
 // const selectedEndDate = ref('2024/09/24');
 // const selectedProcess = ref('FA');
+// Add a ref for the InventoryGraph component:
+const inventoryGraphRef = ref(null);
 
+// Add the handleExport function:
+const handleExport = () => {
+  if (inventoryGraphRef.value) {
+    inventoryGraphRef.value.exportToCSV();
+  }
+};
 
 const uniquepartNumbers = computed(() => [...new Set(tableData.value.map(item => item.ASSY品番))]);
 const uniqueProcesses = computed(() => {
@@ -93,10 +102,10 @@ const manualRefresh = () => {
   fetchInventoriesData();
 };
 
-const exportToCSV = () => {
-  // Implement your CSV export logic here
-  console.log("Export to CSV");
-};
+// const exportToCSV = () => {
+//   // Implement your CSV export logic here
+//   console.log("Export to CSV");
+// };
 
 onMounted(async () => {
   await fetchRefreshInterval();

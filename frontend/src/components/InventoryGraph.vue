@@ -603,6 +603,46 @@ const setupXAxisLabels = (labels) => {
 };
 
 
+const exportToCSV = () => {
+  if (!apiData.value || apiData.value.length === 0) {
+    alert('No data available to export');
+    return;
+  }
+
+  // Prepare CSV header
+  const headers = ['Date', 'Time', 'Value'];
+  
+  // Prepare CSV rows
+  const rows = apiData.value.map(item => {
+    const date = format(parseISO(item.timestamp), 'MM/dd');
+    const time = format(parseISO(item.timestamp), 'H:mm');
+    const value = item.value !== null ? item.value.toFixed(0) : '-';
+    return [date, time, value];
+  });
+
+  // Combine header and rows
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(row => row.join(','))
+  ].join('\n');
+
+  // Create download link
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', `inventory_data_${props.partNumber}_${format(new Date(), 'yyyyMMdd')}.csv`);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+// Expose the export function to parent component
+defineExpose({
+  exportToCSV
+});
+
 </script>
 
 <style scoped>
