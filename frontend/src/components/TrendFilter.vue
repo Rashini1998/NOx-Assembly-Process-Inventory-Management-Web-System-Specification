@@ -45,11 +45,11 @@
         </div>
 
         <div class="ml-auto flex items-center gap-2 shrink-0">
-            <span class="text-white text-sm">{{ trend.filter.reset }}</span>
+            <!-- <span class="text-white text-sm">{{ trend.filter.reset }}</span>
             <button @click="resetFilters" class="px-2 py-1 rounded text-white text-sm"
                 :style="{ backgroundColor: pickedColor }">
                 <img :src="reset" alt="Reset" />
-            </button>
+            </button> -->
 
             <span class="text-white text-sm">{{ trend.filter.csv }}</span>
             <button @click="$emit('export')" class="px-2 py-1 rounded text-cyan-400 text-xl w-10"
@@ -64,7 +64,7 @@
 import { ref } from 'vue'
 import { Cog6ToothIcon } from '@heroicons/vue/24/solid'
 import trendData from '@/assets/config/trend.yaml'
-import reset from '@/assets/images/reset.png'
+// import reset from '@/assets/images/reset.png'
 import Datepicker from 'vue3-datepicker'
 
 const trend = ref(trendData.trend)
@@ -79,7 +79,6 @@ const defineProps = defineProps({
 const processes = [
                     "FA",
                     "SCU",
-                    "WA",
                     "アクセサリ",
                     "外観検査",
                     "気密検査",
@@ -93,13 +92,13 @@ const partNumber = ref('')
 const selectedProcess = ref('')
 const pickedColor = ref('#212121')
 
-const resetFilters = () => {
-    partNumber.value = ''
-    selectedProcess.value = ''
-    emit('update-process', '')
-    emit('update-partNumber', '')
-    emit('update-startDate', null)
-    emit('update-endDate', null)
+// const resetFilters = () => {
+//     partNumber.value = ''
+//     selectedProcess.value = ''
+//     emit('update-process', '')
+//     emit('update-partNumber', '')
+//     emit('update-startDate', null)
+//     emit('update-endDate', null)
 
-}
+// }
 </script>
