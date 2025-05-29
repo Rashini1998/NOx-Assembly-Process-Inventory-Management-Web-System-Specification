@@ -3,37 +3,45 @@
     <div class="header-row"
       style="display: flex; justify-content: flex-end; align-items: center; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;">
       <div class="radio-group" style="display: flex; gap: 10px;">
-        <label><input type="radio" name="option" value="a" /> {{ trend.chartOptions.dailyUnit }}</label>
-        <label><input type="radio" name="option" value="b" /> {{ trend.chartOptions.hourUnit }}</label>
+        <label><input type="radio" v-model="selectedTimeUnit" name="option" value="a" /> {{ trend.chartOptions.dailyUnit
+        }}</label>
+        <label><input type="radio" v-model="selectedTimeUnit" name="option" value="b" /> {{ trend.chartOptions.hourUnit
+        }}</label>
       </div>
     </div>
     <!-- Scrollbar container above the chart -->
-    <div class="scrollbar-container" ref="scrollbarContainer">
-      <div class="scrollbar" ref="scrollbar"></div>
-    </div>
-    <div class="chart-wrapper" ref="chartWrapper">
-      <div class="scroll-container" ref="scrollContainer">
-        <canvas ref="chartCanvas"></canvas>
+    <div v-if="selectedTimeUnit === 'b'">
+      <div class="scrollbar-container" ref="scrollbarContainer">
+        <div class="scrollbar" ref="scrollbar"></div>
+      </div>
+      <div class="chart-wrapper" ref="chartWrapper">
+        <div class="scroll-container" ref="scrollContainer">
+          <canvas ref="chartCanvas"></canvas>
+        </div>
+      </div>
+      <div class="x-axis-labels-container" ref="xAxisLabels">
+        <div class="assy-info">
+          <div class="nameLabel">ASSY品番</div>
+          <div class="valueLable">{{ props.partNumber }}</div>
+        </div>
+        <div class="x-axis-scroll" ref="xAxisScroll">
+          <table class="labels-table">
+            <tbody>
+              <tr class="dates-row"></tr>
+              <tr class="times-row"></tr>
+              <tr class="values-row"></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div v-if="!hasData" class="no-data-message">
+        データがありません (No data available)
       </div>
     </div>
-    <div class="x-axis-labels-container" ref="xAxisLabels">
-      <div class="assy-info">
-        <div class="nameLabel">ASSY品番</div>
-        <div class="valueLable">{{ props.partNumber }}</div>
-      </div>
-      <div class="x-axis-scroll" ref="xAxisScroll">
-        <table class="labels-table">
-          <tbody>
-            <tr class="dates-row"></tr>
-            <tr class="times-row"></tr>
-            <tr class="values-row"></tr>
-          </tbody>
-        </table>
-      </div>
+    <div v-else class="no-data-message">
+      日単位データを表示中 (Showing daily data)
     </div>
-    <div v-if="!hasData" class="no-data-message">
-      データがありません (No data available)
-    </div>
+
   </div>
 </template>
 
@@ -47,6 +55,8 @@ import trendData from '@/assets/config/trend.yaml'
 
 const trend = ref(trendData.trend)
 Chart.register(annotationPlugin);
+
+const selectedTimeUnit = ref('a'); // 'a' for daily, 'b' for hourly
 
 
 const props = defineProps({
@@ -431,12 +441,31 @@ const fetchThresholdData = async () => {
 };
 
 
+// watch(() => [
+//   props.partNumber,
+//   props.process,
+//   props.startDate,
+//   props.endDate,
+//   selectedTimeUnit.value
+// ], fetchGraphData, { immediate: true });
 watch(() => [
   props.partNumber,
   props.process,
   props.startDate,
-  props.endDate
-], fetchGraphData, { immediate: true });
+  props.endDate,
+  selectedTimeUnit.value // Add this to watch list
+], () => {
+  if (selectedTimeUnit.value === 'b') {
+    fetchGraphData();
+  } else {
+    // Clean up if switching away from hourly view
+    if (chartInstance) {
+      chartInstance.destroy();
+      chartInstance = null;
+    }
+    apiData.value = [];
+  }
+}, { immediate: true });
 
 onBeforeUnmount(() => {
   if (chartInstance) {
@@ -444,10 +473,15 @@ onBeforeUnmount(() => {
   }
 });
 
-onMounted(() => {
-  fetchGraphData();
-});
+// onMounted(() => {
+//   fetchGraphData();
+// });
 
+onMounted(() => {
+  if (selectedTimeUnit.value === 'b') {
+    fetchGraphData();
+  }
+});
 
 const scrollbar = ref(null);
 const scrollbarContainer = ref(null);
