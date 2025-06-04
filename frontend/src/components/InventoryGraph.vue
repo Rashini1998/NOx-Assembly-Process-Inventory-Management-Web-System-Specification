@@ -504,29 +504,123 @@ const setupDailyXAxisLabels = (labels, valuesData) => {
   }
 };
 
-const setupDailyScrollbar = async () => {
-  await nextTick();
+// const setupDailyScrollbar = async () => {
+//   await nextTick();
 
-  if (!dailyScrollContainer.value || !dailyScrollbar.value || !dailyScrollbarContainer.value) {
-    console.error('Scroll elements not found');
+//   if (!dailyScrollContainer.value || !dailyScrollbar.value || !dailyScrollbarContainer.value) {
+//     console.error('Scroll elements not found');
+//     return;
+//   }
+
+//   const updateScrollbar = () => {
+//     const container = dailyScrollContainer.value;
+//     const scrollbarContainer = dailyScrollbarContainer.value;
+//     const scrollbar = dailyScrollbar.value;
+
+//     if (!container || !scrollbarContainer || !scrollbar) return;
+
+//     const hasHorizontalScroll = container.scrollWidth > container.clientWidth;
+
+//     if (hasHorizontalScroll) {
+//       const scrollRatio = container.scrollLeft / (container.scrollWidth - container.clientWidth);
+//       const scrollbarWidth = scrollbarContainer.clientWidth *
+//         (container.clientWidth / container.scrollWidth);
+
+//       scrollbar.style.width = `${Math.max(30, scrollbarWidth)}px`; // Minimum width of 30px
+//       scrollbar.style.left = `${scrollRatio * (scrollbarContainer.clientWidth - scrollbarWidth)}px`;
+//       scrollbarContainer.style.display = 'block';
+//     } else {
+//       scrollbarContainer.style.display = 'none';
+//     }
+//   };
+
+//   // Initial update
+//   updateScrollbar();
+
+//   // Sync scrolling between chart and x-axis labels
+//   const syncScroll = () => {
+//     updateScrollbar();
+//     if (dailyXAxisScroll.value) {
+//       dailyXAxisScroll.value.scrollLeft = dailyScrollContainer.value.scrollLeft;
+//     }
+//   };
+
+//   // Set up event listeners
+//   dailyScrollContainer.value.addEventListener('scroll', syncScroll);
+//   window.addEventListener('resize', updateScrollbar);
+
+//   // Make scrollbar draggable
+//   let isDragging = false;
+//   let startX, startLeft;
+
+//   dailyScrollbar.value.addEventListener('mousedown', (e) => {
+//     isDragging = true;
+//     startX = e.clientX;
+//     startLeft = dailyScrollbar.value.offsetLeft;
+//     document.body.style.cursor = 'grabbing';
+//     e.preventDefault();
+//   });
+
+//   document.addEventListener('mousemove', (e) => {
+//     if (!isDragging || !dailyScrollbar.value || !dailyScrollbarContainer.value) return;
+
+//     const containerWidth = dailyScrollbarContainer.value.clientWidth;
+//     const scrollbarWidth = dailyScrollbar.value.clientWidth;
+//     const maxLeft = containerWidth - scrollbarWidth;
+//     const newLeft = startLeft + (e.clientX - startX);
+//     const clampedLeft = Math.max(0, Math.min(maxLeft, newLeft));
+
+//     dailyScrollbar.value.style.left = `${clampedLeft}px`;
+
+//     const scrollRatio = clampedLeft / maxLeft;
+//     dailyScrollContainer.value.scrollLeft = scrollRatio *
+//       (dailyScrollContainer.value.scrollWidth - dailyScrollContainer.value.clientWidth);
+//   });
+
+//   document.addEventListener('mouseup', () => {
+//     isDragging = false;
+//     document.body.style.cursor = '';
+//   });
+
+//   // Cleanup function
+//   return () => {
+//     dailyScrollContainer.value?.removeEventListener('scroll', syncScroll);
+//     window.removeEventListener('resize', updateScrollbar);
+//   };
+// };
+
+const setupDailyScrollbar = async () => {
+  await nextTick(); // Ensure DOM is updated
+
+  // Initial check: if any core element is null, return early
+  if (!dailyChartWrapper.value || !dailyScrollbar.value || !dailyScrollbarContainer.value || !dailyXAxisScroll.value) {
+    console.warn('Daily chart scroll elements not fully available yet. Retrying...');
+    // You might want to add a small delay and re-attempt or rely on the watcher
+    // For now, let's just return if not ready.
     return;
   }
 
+  const chartScrollElement = dailyChartWrapper.value;
+
   const updateScrollbar = () => {
-    const container = dailyScrollContainer.value;
+    // Crucial: Add checks directly inside updateScrollbar
+    if (!chartScrollElement || !dailyScrollbarContainer.value || !dailyScrollbar.value) {
+      console.warn('updateScrollbar: Missing scrollbar elements, cannot update.');
+      return;
+    }
+
+    const container = chartScrollElement;
     const scrollbarContainer = dailyScrollbarContainer.value;
     const scrollbar = dailyScrollbar.value;
-
-    if (!container || !scrollbarContainer || !scrollbar) return;
 
     const hasHorizontalScroll = container.scrollWidth > container.clientWidth;
 
     if (hasHorizontalScroll) {
       const scrollRatio = container.scrollLeft / (container.scrollWidth - container.clientWidth);
       const scrollbarWidth = scrollbarContainer.clientWidth *
-        (container.clientWidth / container.scrollWidth);
+                              (container.clientWidth / container.scrollWidth);
 
-      scrollbar.style.width = `${Math.max(30, scrollbarWidth)}px`; // Minimum width of 30px
+      scrollbar.style.width = `${Math.max(30, scrollbarWidth)}px`;
       scrollbar.style.left = `${scrollRatio * (scrollbarContainer.clientWidth - scrollbarWidth)}px`;
       scrollbarContainer.style.display = 'block';
     } else {
@@ -534,26 +628,39 @@ const setupDailyScrollbar = async () => {
     }
   };
 
-  // Initial update
-  updateScrollbar();
-
-  // Sync scrolling between chart and x-axis labels
-  const syncScroll = () => {
-    updateScrollbar();
-    if (dailyXAxisScroll.value) {
-      dailyXAxisScroll.value.scrollLeft = dailyScrollContainer.value.scrollLeft;
+  const syncDailyChartAndLabelsScroll = () => {
+    // Crucial: Add checks directly inside syncDailyChartAndLabelsScroll
+    if (!dailyXAxisScroll.value || !chartScrollElement) {
+      console.warn('syncDailyChartAndLabelsScroll: Missing elements, cannot sync.');
+      return;
     }
+    dailyXAxisScroll.value.scrollLeft = chartScrollElement.scrollLeft;
+    updateScrollbar();
   };
 
+  // Initial updates after elements are confirmed to exist
+  syncDailyChartAndLabelsScroll(); // Call once on setup to ensure initial state
+
   // Set up event listeners
-  dailyScrollContainer.value.addEventListener('scroll', syncScroll);
-  window.addEventListener('resize', updateScrollbar);
+  // Ensure we only add listeners once and clean them up
+  // Use a flag or check if listener is already added to avoid duplicates if setupDailyScrollbar is called multiple times
+  if (!chartScrollElement.__scrollListenerAdded) { // Custom flag to prevent duplicate listeners
+    chartScrollElement.addEventListener('scroll', syncDailyChartAndLabelsScroll);
+    chartScrollElement.__scrollListenerAdded = true; // Mark as added
+  }
+
+  if (!window.__resizeListenerAddedDaily) { // Custom flag for window resize
+    window.addEventListener('resize', updateScrollbar);
+    window.__resizeListenerAddedDaily = true;
+  }
 
   // Make scrollbar draggable
   let isDragging = false;
   let startX, startLeft;
 
+  // Add null checks for mouse events as well
   dailyScrollbar.value.addEventListener('mousedown', (e) => {
+    if (!dailyScrollbar.value || !dailyScrollbarContainer.value) return; // Add check
     isDragging = true;
     startX = e.clientX;
     startLeft = dailyScrollbar.value.offsetLeft;
@@ -562,8 +669,7 @@ const setupDailyScrollbar = async () => {
   });
 
   document.addEventListener('mousemove', (e) => {
-    if (!isDragging || !dailyScrollbar.value || !dailyScrollbarContainer.value) return;
-
+    if (!isDragging || !dailyScrollbar.value || !dailyScrollbarContainer.value || !chartScrollElement) return; // Add check
     const containerWidth = dailyScrollbarContainer.value.clientWidth;
     const scrollbarWidth = dailyScrollbar.value.clientWidth;
     const maxLeft = containerWidth - scrollbarWidth;
@@ -573,8 +679,8 @@ const setupDailyScrollbar = async () => {
     dailyScrollbar.value.style.left = `${clampedLeft}px`;
 
     const scrollRatio = clampedLeft / maxLeft;
-    dailyScrollContainer.value.scrollLeft = scrollRatio *
-      (dailyScrollContainer.value.scrollWidth - dailyScrollContainer.value.clientWidth);
+    chartScrollElement.scrollLeft = scrollRatio *
+      (chartScrollElement.scrollWidth - chartScrollElement.clientWidth);
   });
 
   document.addEventListener('mouseup', () => {
@@ -582,11 +688,20 @@ const setupDailyScrollbar = async () => {
     document.body.style.cursor = '';
   });
 
-  // Cleanup function
-  return () => {
-    dailyScrollContainer.value?.removeEventListener('scroll', syncScroll);
-    window.removeEventListener('resize', updateScrollbar);
-  };
+  // Cleanup function for onBeforeUnmount
+  onBeforeUnmount(() => { // Move cleanup here for better management
+    if (chartScrollElement && chartScrollElement.__scrollListenerAdded) {
+      chartScrollElement.removeEventListener('scroll', syncDailyChartAndLabelsScroll);
+      chartScrollElement.__scrollListenerAdded = false;
+    }
+    if (window.__resizeListenerAddedDaily) {
+      window.removeEventListener('resize', updateScrollbar);
+      window.__resizeListenerAddedDaily = false;
+    }
+    // Also destroy chart instances here if they haven't been already
+    if (hourlyChartInstance) hourlyChartInstance.destroy();
+    if (dailyChartInstance) dailyChartInstance.destroy();
+  });
 };
 
 const setupXAxisLabels = (labels) => {
@@ -807,6 +922,18 @@ defineExpose({ exportToCSV });
   border-radius: 4px;
 }
 
+/* For WebKit browsers (Chrome, Safari, Edge) */
+.daily-chart-wrapper::-webkit-scrollbar {
+  display: none; /* Hide the scrollbar itself */
+  width: 0;     /* Ensure no width is taken up by the scrollbar */
+  height: 0;    /* Ensure no height is taken up by the scrollbar */
+}
+
+/* For Firefox */
+.daily-chart-wrapper {
+  scrollbar-width: none; /* Hide the scrollbar */
+}
+
 .daily-scroll-container {
   height: 100%;
   width: 100%;
@@ -816,15 +943,9 @@ defineExpose({ exportToCSV });
 }
 
 .x-axis-scroll {
-  /* overflow-x: auto;
-  overflow-y: hidden;
-  flex: 1;
-  scrollbar-width: none; */
   overflow-x: hidden;
-  /* It will be scrolled programmatically, so hide its own scrollbar */
   overflow-y: hidden;
   flex: 1;
-  /* Allows it to take remaining width in flex container */
   scrollbar-width: none;
 }
 
@@ -959,6 +1080,14 @@ defineExpose({ exportToCSV });
   border-bottom: #1c0808;
   font-weight: bold !important;
   font-size: 12px;
+}
+
+.dates-row{
+  margin-bottom: 15px;
+}
+
+.times-row{
+    margin-top: 5px;
 }
 
 .date-label,
