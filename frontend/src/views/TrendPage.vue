@@ -43,11 +43,6 @@ const selectedPartNumber = ref('');
 const selectedStartDate = ref(null);
 const selectedEndDate = ref(null);
 const selectedProcess = ref('');
-// const selectedPartNumber = ref('1144780280');
-// const selectedStartDate = ref('2024/09/24');
-// const selectedEndDate = ref('2024/09/24');
-// const selectedProcess = ref('FA');
-// Add a ref for the InventoryGraph component:
 const inventoryGraphRef = ref(null);
 
 // Add the handleExport function:
@@ -101,11 +96,6 @@ const handleSearch = () => {
 const manualRefresh = () => {
   fetchInventoriesData();
 };
-
-// const exportToCSV = () => {
-//   // Implement your CSV export logic here
-//   console.log("Export to CSV");
-// };
 
 onMounted(async () => {
   await fetchRefreshInterval();

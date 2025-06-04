@@ -143,27 +143,13 @@ def get_refresh_config():
 
 
 
-# Get inventory availability data for Vue table
+# Get all inventory availability data for Vue table
 @inventory_bp.route('/api/wip-inventories-histories', methods=['GET'])
 def get_wip_inventories_histories():
     records = WIP_Inventories.query.all()
     data = []
     for r in records:
         data.append({
-            # "ASSYPartNumber": r.ASSY_Part_Number,
-            # "SUBASSY": r.SUBASSY,
-            # "Manufacturer": r.Manufacturer,
-            # "ShippingClass": r.Shipping_Class,
-            # "AirtightInspection": r.Airtight_inspection,
-            # "SCU": r.SCU,
-            # "WaterVaporInspection": r.Water_Vapor_Inspection,
-            # "CharacteristicsInspection": r.Characteristics_inspection,
-            # "CharacteristicInspectionOddLot": r.Characteristic_inspection_odd_lot,
-            # "Accessories": r.Accessories,
-            # "FA": r.FA,
-            # "FAFractionalItems": r.FA_fractional_items,
-            # "VisualInspection": r.Visual_inspection,
-            # "Updated": r.Updated,
             "ASSY品番": r.ASSY品番,
             "SUBASSY品番": r.SUBASSY品番,
             "メーカ": r.メーカ,
@@ -182,6 +168,7 @@ def get_wip_inventories_histories():
         })
     return jsonify(data)
 
+# Get specific inventory availability data for given partNumber, process, start and end dates
 @inventory_bp.route('/api/wip-inventories-histories-new', methods=['GET'])
 def get_wip_inventories_histories_new():
     part_number = request.args.get('partNumber')
@@ -246,7 +233,7 @@ def get_wip_inventories_histories_new():
         }), 500
     
 
-# Get inventory availability data for Vue table
+# Get all inventory availability data for Vue table
 @inventory_bp.route('/api/iitsMaster', methods=['GET'])
 def get_iits_master():
     records = IITS_Master.query.all()
@@ -264,6 +251,8 @@ def get_iits_master():
     print("Total data sent in response:", len(data))
     return jsonify(data)
 
+
+# Get all inventory availability data for given partNumber and the process
 @inventory_bp.route('/api/nox_assy_inv_mgt_thresh', methods=['GET'])
 def get_threshold_data():
     # Get query parameters
@@ -293,44 +282,5 @@ def get_threshold_data():
         })
     
     print(f"Threshold data sent in response for part {part_number} and process {process}: {len(data)} records")
-    return jsonify(data)
-
-
-@inventory_bp.route('/api/raw_iits_test', methods=['GET'])
-def raw_iits_test():
-    result = db.session.execute(text("SELECT DISTINCT Inventory_Management_Group_Name FROM nox_assy_inv_mgt_thresh"))
-    groups = [row[0] for row in result]
-    print("Distinct groups from raw SQL:", groups)
-    
-    all_rows = db.session.execute(text("SELECT * FROM nox_assy_inv_mgt_thresh"))
-    all_rows_list = [dict(row) for row in all_rows]
-    print(f"Total rows fetched with raw SQL: {len(all_rows_list)}")
-    
-    return jsonify({
-        "distinct_groups": groups,
-        "total_rows": len(all_rows_list),
-        "sample_row": all_rows_list[0] if all_rows_list else None
-    })
-
-@inventory_bp.route('/api/all-results', methods=['GET'])
-def get_new_inventory_data():
-    # Count total rows
-    result = db.session.execute(text("SELECT COUNT(*) FROM all_new_interim_transactions"))
-    count = result.scalar()
-    print("Total rows in DB table:", count)
-
-    # Fetch limited rows with SQL Server syntax
-    result2 = db.session.execute(text("SELECT TOP 10 * FROM all_new_interim_transactions"))
-    rows = result2.fetchall()
-
-    # Get column names from the ResultProxy metadata
-    keys = result2.keys()
-
-    print("Sample rows:", rows)
-    print("Column keys:", keys)
-
-    # Map rows to dicts manually
-    data = [dict(zip(keys, row)) for row in rows]
-
     return jsonify(data)
 
