@@ -338,6 +338,7 @@ const createHourlyChart = async () => {
 
   const thresholdData = await fetchThresholdData();
   const hourlyData = processHourlyData(apiData.value);
+
   setupXAxisLabels(hourlyData.labels);
 
   const canvasWidth = calculateCanvasWidth(hourlyData.labels.length);
@@ -379,8 +380,8 @@ const createHourlyChart = async () => {
     }
   });
 
-  if (hourlyData.labels.length > 10 && scrollContainer.value) {
-    scrollContainer.value.scrollLeft = canvasWidth;
+  if (scrollContainer.value) { 
+    scrollContainer.value.scrollLeft = 0; 
   }
   await nextTick();
   setupScrollbar();
@@ -618,7 +619,7 @@ const setupDailyScrollbar = async () => {
     if (hasHorizontalScroll) {
       const scrollRatio = container.scrollLeft / (container.scrollWidth - container.clientWidth);
       const scrollbarWidth = scrollbarContainer.clientWidth *
-                              (container.clientWidth / container.scrollWidth);
+        (container.clientWidth / container.scrollWidth);
 
       scrollbar.style.width = `${Math.max(30, scrollbarWidth)}px`;
       scrollbar.style.left = `${scrollRatio * (scrollbarContainer.clientWidth - scrollbarWidth)}px`;
@@ -924,14 +925,18 @@ defineExpose({ exportToCSV });
 
 /* For WebKit browsers (Chrome, Safari, Edge) */
 .daily-chart-wrapper::-webkit-scrollbar {
-  display: none; /* Hide the scrollbar itself */
-  width: 0;     /* Ensure no width is taken up by the scrollbar */
-  height: 0;    /* Ensure no height is taken up by the scrollbar */
+  display: none;
+  /* Hide the scrollbar itself */
+  width: 0;
+  /* Ensure no width is taken up by the scrollbar */
+  height: 0;
+  /* Ensure no height is taken up by the scrollbar */
 }
 
 /* For Firefox */
 .daily-chart-wrapper {
-  scrollbar-width: none; /* Hide the scrollbar */
+  scrollbar-width: none;
+  /* Hide the scrollbar */
 }
 
 .daily-scroll-container {
@@ -986,7 +991,7 @@ defineExpose({ exportToCSV });
 .scrollbar-container {
   width: 100%;
   height: 15px;
-  background: #f0f0f0;
+  background: black;
   border-radius: 4px 4px 0 0;
   position: relative;
   margin-bottom: 2px;
@@ -1082,12 +1087,12 @@ defineExpose({ exportToCSV });
   font-size: 12px;
 }
 
-.dates-row{
+.dates-row {
   margin-bottom: 15px;
 }
 
-.times-row{
-    margin-top: 5px;
+.times-row {
+  margin-top: 5px;
 }
 
 .date-label,
