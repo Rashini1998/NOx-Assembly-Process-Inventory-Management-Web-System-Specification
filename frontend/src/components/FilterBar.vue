@@ -16,12 +16,6 @@
         <option disabled value="">{{ home.filter.manufacture }}</option>
         <option v-for="(m, i) in manufacturers" :key="i" :value="m">{{ m }}</option>
       </select>
-
-      <!-- <select v-model="productNumber" @change="$emit('update-product-number', productNumber)"
-        :style="{ backgroundColor: pickedColor }" class=" w-full px-3 py-1.5 rounded text-white text-sm outline-none ">
-        <option disabled value="">{{ home.filter.productNumber }}</option>
-        <option v-for="(m, i) in productNumbers" :key="i" :value="m">{{ m }}</option>
-      </select> -->
       <input v-model="productNumber" list="productNumberList" maxlength="4" @input="$emit('update-product-number', productNumber)"
         :style="{ backgroundColor: pickedColor }" class="w-full px-3 py-1.5 rounded text-white text-sm outline-none"
         type="text" :placeholder="home.filter.productNumber" />

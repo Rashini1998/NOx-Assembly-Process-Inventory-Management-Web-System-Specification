@@ -3,7 +3,9 @@ from src.controllers.inventory_controller import process_inventory_csv
 from src.controllers.status_controller import process_status_csv
 from src.controllers.inventory_availability_controller import process_availability_csv
 from src.models.inventory_history import InventoryHistory
+from src.models.inventory_history import InventoryHistoryNew
 from src.models.status_model import LabelStatus
+from src.models.status_model import LabelStatusNew
 from src.models.inventory_availability_model import InventoryAvailability
 from src.models.wip_inventories_history_model import WIP_Inventories
 from src.models.IITS_Master_model import IITS_Master
@@ -84,7 +86,7 @@ def get_label_status():
             "Quantity": r.Quantity,
             "WorkStatus": r.WorkStatus,
             "ShelfTagRegistrationDate": r.ShelfTagRegistrationDate,
-            "ShelfTagUpdateDate": r.ShelfTagUpdateDate,
+            "ShelfTagUpdateDate": r.ShelfTagRegistrationDate,
             "DurationOfStay": r.DurationOfStay
         })
     return jsonify(data)
@@ -284,3 +286,70 @@ def get_threshold_data():
     print(f"Threshold data sent in response for part {part_number} and process {process}: {len(data)} records")
     return jsonify(data)
 
+
+@inventory_bp.route('/api/dynamic-table', methods=['GET'])
+def get_dynamic_table():
+
+    table_name = request.args.get('table')
+    
+    if not table_name:
+        return jsonify({'error': 'Table name not provided'}), 400
+    
+    try:
+        if table_name == 'inventory_history':
+            # Get inventory history data
+            records = InventoryHistoryNew.query.all()
+            data = []
+            for r in records:
+                data.append({
+                    "ASSY品番": r.ASSY品番,
+                    "メーカ": r.メーカ,
+                    "SUBASSY品番": r.SUBASSY品番,
+                    "出荷区分": r.出荷区分,
+                    "気密検査": r.気密検査,
+                    "SCU": r.SCU,
+                    "水蒸気検査": r.水蒸気検査,
+                    "特性検査": r.特性検査,
+                    "特性検査端数品": r.特性検査端数品,
+                    "アクセサリ": r.アクセサリ,
+                    "FA": r.FA,
+                    "FA端数品": r.FA端数品,
+                    "外観検査": r.外観検査,
+                    "更新日時": r.更新日時
+                })
+            
+            # Get column names from the first record if exists
+            columns = list(data[0].keys()) if data else []
+            
+        elif table_name == 'realtime_shelf_label_status':
+            # Get shelf label status data
+            records = LabelStatusNew.query.all()
+            data = []
+            for r in records:
+                data.append({
+                    "棚札ID": r.棚札ID,
+                    "品番": r.品番,
+                    "次工程名称": r.次工程名称,
+                    "加工Lot": r.加工Lot,
+                    "数量": r.数量,
+                    "作業状況": r.作業状況,
+                    "棚札登録日時": r.棚札登録日時,
+                    "棚札更新日時": r.棚札更新日時,
+                    "滞留日数": r.滞留日数
+                })
+            
+            # Get column names from the first record if exists
+            columns = list(data[0].keys()) if data else []
+            
+        else:
+            return jsonify({'error': 'Invalid table name'}), 400
+        
+        return jsonify({
+            'columns': columns,
+            'data': data
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error fetching dynamic table data: {str(e)}")
+        return jsonify({'error': 'Failed to fetch table data'}), 500
+    

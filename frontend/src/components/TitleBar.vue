@@ -29,19 +29,19 @@
   const pageTitle = computed(() => {
     switch (route.path) {
       case '/':
-        return 'リアルタイム中間在庫画面'
+        return 'リアルタイム中間在庫'
       case '/status':
         return 'リアルタイム棚札ステータス'
       case '/capacity':
         return 'リアルタイム中間在庫余力日数'
       case '/trend':
         return '中間在庫推移'
-      case '/general_purpose':
-        return '汎用テーブル表示'
+      // case '/general_purpose':
+      //   return '汎用テーブル表示'
       case '/imm_setting':
         return '在庫管理マスタ設定画面'
       default:
-        return 'Hello'
+        return ''
     }
   })
 

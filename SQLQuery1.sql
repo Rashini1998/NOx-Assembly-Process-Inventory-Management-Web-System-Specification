@@ -163,7 +163,7 @@ select * from nox_assy_wip_inventories_history;
 
 SELECT  *
 FROM nox_assy_wip_inventories_history
-WHERE ASSY品番 = '1144780280' AND 更新日時 = '2024-09-19 00:00:' ;
+WHERE ASSY品番 = '1144780280' AND  ;
 
 
 EXEC sp_rename 'nox_assy_wip_inventories_history.ASSY_Part_Number', N'ASSY品番', 'COLUMN';
@@ -333,3 +333,17 @@ SELECT ASSYPartNumber,  COUNT(*)
 FROM all_new_interim_transactions
 GROUP BY ASSYPartNumber
 HAVING COUNT(*) > 1;
+
+
+select * from nox_assy_esl_status;
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'nox_assy_esl_status';
+
+
+ALTER TABLE nox_assy_esl_status
+ADD id INT IDENTITY(1,1);
+
+ALTER TABLE nox_assy_esl_status
+ADD CONSTRAINT PK_all_nox_assy_esl_status PRIMARY KEY (id);

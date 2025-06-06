@@ -1,0 +1,9 @@
+general:
+  title: "汎用テーブル表示"
+  selection:
+    select: "一般的なテーブルの選択"
+    page01: "リアルタイム中間在庫"
+    page02: "リアルタイム棚札ステータス"
+  database: "データベース"
+  table: "テーブル名"
+  test : "TEST"
