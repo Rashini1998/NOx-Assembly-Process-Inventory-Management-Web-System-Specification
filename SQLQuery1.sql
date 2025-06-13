@@ -347,3 +347,47 @@ ADD id INT IDENTITY(1,1);
 
 ALTER TABLE nox_assy_esl_status
 ADD CONSTRAINT PK_all_nox_assy_esl_status PRIMARY KEY (id);
+
+
+select * from nox_assy_wip_inventories2;
+drop table nox_assy_wip_inventories2;
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'nox_assy_wip_inventories2';
+
+
+ALTER TABLE nox_assy_wip_inventories2
+ADD id INT IDENTITY(1,1);
+
+ALTER TABLE nox_assy_wip_inventories2
+ADD CONSTRAINT PK_all_nox_assy_wip_inventories2 PRIMARY KEY (id);
+
+
+select * from nox_assy_wip_inventories_new;
+
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'nox_assy_wip_inventories_new';
+
+
+ALTER TABLE nox_assy_wip_inventories_new
+ADD id INT IDENTITY(1,1);
+
+ALTER TABLE nox_assy_wip_inventories_new
+ADD CONSTRAINT PK_all_nox_assy_wip_inventories_new PRIMARY KEY (id);
+
+
+
+select * from nox_assy_inv_mgt_master_new;
+
+SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'nox_assy_inv_mgt_master_new';
+
+ALTER TABLE nox_assy_inv_mgt_master_new
+ADD id INT IDENTITY(1,1);
+
+ALTER TABLE nox_assy_inv_mgt_master_new
+ADD CONSTRAINT PK_all_nox_assy_inv_mgt_master_new PRIMARY KEY (id);

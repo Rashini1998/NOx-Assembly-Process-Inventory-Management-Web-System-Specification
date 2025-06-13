@@ -9,6 +9,7 @@ from src.models.status_model import LabelStatusNew
 from src.models.inventory_availability_model import InventoryAvailability
 from src.models.wip_inventories_history_model import WIP_Inventories
 from src.models.IITS_Master_model import IITS_Master
+from src.models.imm_setting_screen_model import IMM_Setting
 # from src.models.New_Inventory_Master import New_Inventory_Master
 from src import db
 from flask import current_app
@@ -303,8 +304,8 @@ def get_dynamic_table():
             for r in records:
                 data.append({
                     "ASSY品番": r.ASSY品番,
-                    "メーカ": r.メーカ,
                     "SUBASSY品番": r.SUBASSY品番,
+                    "メーカ": r.メーカ,
                     "出荷区分": r.出荷区分,
                     "気密検査": r.気密検査,
                     "SCU": r.SCU,
@@ -353,3 +354,37 @@ def get_dynamic_table():
         current_app.logger.error(f"Error fetching dynamic table data: {str(e)}")
         return jsonify({'error': 'Failed to fetch table data'}), 500
     
+
+@inventory_bp.route('/api/imm-setting', methods=['GET'])
+def get_imm_setting():
+    records = IMM_Setting.query.all()
+    data = []
+    for r in records:
+        data.append({
+            "id":r.id,
+            "設備グループID": r.設備グループID,
+            "設備機番": r.設備機番,
+            "設備グループ名称": r.設備グループ名称,
+            "在庫管理グループID": r.在庫管理グループID,
+            "在庫管理グループ名称": r.在庫管理グループ名称,
+            "基準在庫日数": r.基準在庫日数,
+            "基準在庫管理幅": r.基準在庫管理幅
+        })
+    return jsonify(data)
+    
+
+@inventory_bp.route('/api/imm-setting', methods=['POST'])
+def add_imm_setting():
+    data = request.json
+    new_row = IMM_Setting(
+        設備グループID=data['設備グループID'],
+        設備機番=data['設備機番'],
+        設備グループ名称=data['設備グループ名称'],
+        在庫管理グループID=data['在庫管理グループID'],
+        在庫管理グループ名称=data['在庫管理グループ名称'],
+        基準在庫日数=data['基準在庫日数'],
+        基準在庫管理幅=data.get('基準在庫管理幅')
+    )
+    db.session.add(new_row)
+    db.session.commit()
+    return jsonify({'message': 'Row added successfully'}), 201
