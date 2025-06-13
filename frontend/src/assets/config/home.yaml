@@ -7,7 +7,7 @@ home:
     page04: "中間在庫推移"
     page05: "汎用テーブル表示"
     page07 : "画面選択"
-    page06: "在庫管理マスタ設定画面"
+    page06: "在庫管理マスタ設定"
   title:
     updatedate: "最終更新日 :"
     updateFrequency: "更新頻度 :"

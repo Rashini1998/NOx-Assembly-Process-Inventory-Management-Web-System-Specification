@@ -1,0 +1,19 @@
+settings:
+  filter: 
+    title: "在庫管理マスタ設定画面"
+    addRow: "行の追加"
+  database: "データベース"
+  table: "テーブル名"
+  test : "TEST"
+  tableHeaders:
+    No: "No."
+    EquipmentGroupID: "設備グループID"
+    EquipmentSerialNumber: "設備機番"
+    EquipmentGroupName: "設備グループ名称"
+    InventoryManagementGroupID: "在庫管理グループID"
+    InventoryManagementGroupName: "在庫管理グループ名称"
+    StandardInventoryDays: "基準在庫日数"
+    StandardInventoryManagementRang: "基準在庫管理幅"
+  modal:
+    addRow: "行の追加"
+
