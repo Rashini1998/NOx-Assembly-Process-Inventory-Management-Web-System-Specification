@@ -15,6 +15,22 @@
           <PlusIcon class="h-5 w-5 text-white" />
           <span>{{ home.filter.addRow }}</span>
         </button>
+        <button :disabled="selectedRows.length !== 1" @click="startEdit"
+          class="flex items-center space-x-2 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-500 text-white px-3 py-1 rounded">
+          <ArrowPathIcon class="h-5 w-5 text-white" />
+          <span>{{ home.filter.editRow }}</span>
+        </button>
+        <button :disabled="selectedRows.length === 0" @click="deleteRows"
+          class="flex items-center space-x-2 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-500 text-white px-3 py-1 rounded">
+          <XMarkIcon class="h-5 w-5 text-white" />
+          <span>{{ home.filter.deleteRow }}</span>
+        </button>
+        <!-- ✅ Save Button for Editing -->
+        <div v-if="isEditing" class="flex justify-end mt-3">
+          <button @click="saveEdit" class="px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white rounded">
+            保存 (Save)
+          </button>
+        </div>
       </div>
 
       <!-- Table -->
@@ -46,14 +62,41 @@
               <td class="p-2 border text-right">{{ row.設備グループID }}</td>
               <td class="p-2 border text-right">{{ row.設備機番 }}</td>
               <td class="p-2 border text-right">{{ row.設備グループ名称 }}</td>
-              <td class="p-2 border text-right">{{ row.在庫管理グループID }}</td>
-              <td class="p-2 border text-right">{{ row.在庫管理グループ名称 }}</td>
-              <td class="p-2 border text-right">{{ row.基準在庫日数 }}</td>
-              <td class="p-2 border text-right">{{ row.基準在庫管理幅 }}</td>
+              <!-- <td class="p-2 border text-right">{{ row.在庫管理グループID }}</td> -->
+              <td class="p-2 border text-right">
+                <input v-if="isEditing && selectedRows.includes(row.id)" v-model="editedRows.在庫管理グループID"
+                  class="bg-white border p-1 w-full" />
+                <span v-else>{{ row.在庫管理グループID }}</span>
+              </td>
+              <!-- <td class="p-2 border text-right">{{ row.在庫管理グループ名称 }}</td> -->
+              <td class="p-2 border text-right">
+                <input v-if="isEditing && selectedRows.includes(row.id)" v-model="editedRows.在庫管理グループ名称"
+                  class="bg-white border p-1 w-full" />
+                <span v-else>{{ row.在庫管理グループ名称 }}</span>
+              </td>
+              <!-- <td class="p-2 border text-right">{{ row.基準在庫日数 }}</td>
+                -->
+              <td class="p-2 border text-right">
+                <input v-if="isEditing && selectedRows.includes(row.id)" type="number" v-model="editedRows.基準在庫日数"
+                  class="bg-white border p-1 w-full" />
+                <span v-else>{{ row.基準在庫日数 }}</span>
+              </td>
+              <!-- <td class="p-2 border text-right">{{ row.基準在庫管理幅 }}</td> -->
+              <td class="p-2 border text-right">
+                <input v-if="isEditing && selectedRows.includes(row.id)" v-model="editedRows.基準在庫管理幅"
+                  class="bg-white border p-1 w-full" />
+                <span v-else>{{ row.基準在庫管理幅 }}</span>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
+      <!-- ✅ Save Button for Editing
+      <div v-if="isEditing" class="flex justify-end mt-3">
+        <button @click="saveEdit" class="px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white rounded">
+          保存 (Save)
+        </button>
+      </div> -->
       <!-- Modal -->
       <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
         <div class="bg-zinc-900 text-white p-6 rounded-lg w-[500px] space-y-4 shadow-lg">
@@ -86,9 +129,44 @@
 
           <div class="flex justify-end border-t border-zinc-700 pt-4 space-x-2">
             <button @click="closeModal" class="px-4 py-1 rounded bg-zinc-700 hover:bg-zinc-600">キャンセル</button>
-            <button @click="addRow"
-              class="px-4 py-1 rounded bg-blue-900 hover:bg-blue-600 text-white transition-colors">追加</button>
+            <!-- <button @click="addRow"
+              class="px-4 py-1 rounded bg-blue-900 hover:bg-blue-600 text-white transition-colors">追加</button> -->
+            <button @click="openPermissionModal" class="px-4 py-1 rounded bg-blue-900 hover:bg-blue-600 text-white">
+              追加
+            </button>
           </div>
+        </div>
+      </div>
+      <div v-if="showPermissionModal"
+        class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div class="bg-zinc-900 text-white p-6 rounded-lg w-[450px] shadow-lg">
+
+          <h2 class="text-lg font-bold mb-4">
+            権限画面
+          </h2>
+
+          <p class="mb-4">
+            継続確認でデータベースに移動してもよろしいですか？
+          </p>
+
+          <div class="mb-4">
+            <label class="block mb-2">
+              パスワード
+            </label>
+
+            <input v-model="password" type="password" class="w-full bg-zinc-800 border border-zinc-600 p-2 rounded" />
+          </div>
+
+          <div class="flex justify-end space-x-2">
+            <button @click="cancelPermission" class="px-4 py-2 bg-zinc-700 rounded hover:bg-zinc-600">
+              キャンセル
+            </button>
+
+            <button @click="confirmAddRow" class="px-4 py-2 bg-blue-700 rounded hover:bg-blue-500">
+              OK
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -97,7 +175,8 @@
 </template>
 <script setup>
 import { ref, onMounted } from 'vue'
-import { PlusIcon } from '@heroicons/vue/24/solid'
+import { PlusIcon, ArrowPathIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+
 import axios from 'axios'
 import settingData from '@/assets/config/imm_setting_screen.yaml'
 
@@ -105,6 +184,9 @@ const home = ref(settingData.settings)
 const tableData = ref([])
 const showModal = ref(false)
 const selectedRows = ref([])
+
+const isEditing = ref(false)
+const editedRows = ref({})
 
 const newRow = ref({
   設備グループID: '',
@@ -115,6 +197,9 @@ const newRow = ref({
   基準在庫日数: '',
   基準在庫管理幅: '',
 })
+
+const showPermissionModal = ref(false)
+const password = ref('')
 
 const fetchData = async () => {
   try {
@@ -132,12 +217,77 @@ const openModal = () => {
 const closeModal = () => {
   showModal.value = false
 }
-
-const addRow = () => {
-  // Simulate posting to backend or directly push into table for now
-  tableData.value.push({ ...newRow.value })
-  closeModal()
+const openPermissionModal = () => {
+  showPermissionModal.value = true
 }
+
+const cancelPermission = () => {
+  showPermissionModal.value = false
+  password.value = ''
+}
+
+const confirmAddRow = async () => {
+  try {
+    if (password.value !== 'admin123') {
+      alert('パスワードが正しくありません')
+      return
+    }
+
+    await axios.post(
+      'http://localhost:5000/api/imm-setting',
+      newRow.value
+    )
+
+    await fetchData()
+
+    showPermissionModal.value = false
+    showModal.value = false
+
+    password.value = ''
+
+    newRow.value = {
+      設備グループID: '',
+      設備機番: '',
+      設備グループ名称: '',
+      在庫管理グループID: '',
+      在庫管理グループ名称: '',
+      基準在庫日数: '',
+      基準在庫管理幅: '',
+    }
+
+  } catch (error) {
+    console.error('Error adding row:', error)
+  }
+}
+
+// const addRow = async () => {
+//   // // Simulate posting to backend or directly push into table for now
+//   // tableData.value.push({ ...newRow.value })
+//   // closeModal()
+//   try {
+//     await axios.post(
+//       'http://localhost:5000/api/imm-setting',
+//       newRow.value
+//     )
+//     // reload table from beckend
+//     await fetchData()
+
+//     // reset form
+//     newRow.value = {
+//       設備グループID: '',
+//       設備機番: '',
+//       設備グループ名称: '',
+//       在庫管理グループID: '',
+//       在庫管理グループ名称: '',
+//       基準在庫日数: '',
+//       基準在庫管理幅: '',
+//     }
+//     closeModal()
+//   } catch (error) {
+//     console.error('Error adding row:', error)
+//   }
+
+// }
 
 onMounted(fetchData)
 
@@ -150,4 +300,46 @@ const toggleAll = (event) => {
   }
 }
 
+const startEdit = () => {
+  if (selectedRows.value.length === 1) {
+    const rowId = selectedRows.value[0]
+    const target = tableData.value.find(r => r.id === rowId)
+    editedRows.value = { ...target }
+    isEditing.value = true
+  }
+}
+
+const saveEdit = async () => {
+  try {
+    await axios.put(`http://localhost:5000/api/imm-setting/${editedRows.value.id}`, editedRows.value)
+
+    // Update table locally
+    const idx = tableData.value.findIndex(r => r.id === editedRows.value.id)
+    if (idx !== -1) {
+      tableData.value[idx] = { ...editedRows.value }
+    }
+
+    isEditing.value = false
+    editedRows.value = {}
+    selectedRows.value = []
+  } catch (error) {
+    console.error("Error updating data:", error)
+  }
+}
+
+const deleteRows = async () => {
+  try {
+    await axios.post('http://localhost:5000/api/imm-setting/delete', {
+      ids: selectedRows.value
+    })
+
+    tableData.value = tableData.value.filter(
+      row => !selectedRows.value.includes(row.id)
+    )
+
+    selectedRows.value = []
+  } catch (error) {
+    console.error("Error deleting rows:", error)
+  }
+}
 </script>

@@ -28,4 +28,3 @@ class InventoryAvailability(db.Model):
     Plan_7 = db.Column(db.Integer,nullable=False)	
     Updated = db.Column(db.DateTime, nullable=False)
 
-    

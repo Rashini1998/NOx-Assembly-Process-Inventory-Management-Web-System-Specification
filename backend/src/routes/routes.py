@@ -373,9 +373,26 @@ def get_imm_setting():
     return jsonify(data)
     
 
+# @inventory_bp.route('/api/imm-setting', methods=['POST'])
+# def add_imm_setting():
+#     data = request.json
+#     new_row = IMM_Setting(
+#         設備グループID=data['設備グループID'],
+#         設備機番=data['設備機番'],
+#         設備グループ名称=data['設備グループ名称'],
+#         在庫管理グループID=data['在庫管理グループID'],
+#         在庫管理グループ名称=data['在庫管理グループ名称'],
+#         基準在庫日数=data['基準在庫日数'],
+#         基準在庫管理幅=data.get('基準在庫管理幅')
+#     )
+#     db.session.add(new_row)
+#     db.session.commit()
+#     return jsonify({'message': 'Row added successfully'}), 201
+
 @inventory_bp.route('/api/imm-setting', methods=['POST'])
 def add_imm_setting():
     data = request.json
+
     new_row = IMM_Setting(
         設備グループID=data['設備グループID'],
         設備機番=data['設備機番'],
@@ -385,6 +402,17 @@ def add_imm_setting():
         基準在庫日数=data['基準在庫日数'],
         基準在庫管理幅=data.get('基準在庫管理幅')
     )
+
     db.session.add(new_row)
     db.session.commit()
-    return jsonify({'message': 'Row added successfully'}), 201
+
+    return jsonify({
+        "id": new_row.id,
+        "設備グループID": new_row.設備グループID,
+        "設備機番": new_row.設備機番,
+        "設備グループ名称": new_row.設備グループ名称,
+        "在庫管理グループID": new_row.在庫管理グループID,
+        "在庫管理グループ名称": new_row.在庫管理グループ名称,
+        "基準在庫日数": new_row.基準在庫日数,
+        "基準在庫管理幅": new_row.基準在庫管理幅
+    }), 201

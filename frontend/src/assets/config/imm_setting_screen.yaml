@@ -2,6 +2,8 @@ settings:
   filter: 
     title: "在庫管理マスタ設定画面"
     addRow: "行の追加"
+    editRow: "データ更新"
+    deleteRow: "データ削除"
   database: "データベース"
   table: "テーブル名"
   test : "TEST"
@@ -16,4 +18,5 @@ settings:
     StandardInventoryManagementRang: "基準在庫管理幅"
   modal:
     addRow: "行の追加"
+
 
