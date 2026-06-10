@@ -26,8 +26,8 @@
           <span>{{ home.filter.deleteRow }}</span>
         </button>
         <!-- ✅ Save Button for Editing -->
-        <div v-if="isEditing" class="flex justify-end mt-3">
-          <button @click="saveEdit" class="px-4 py-2 bg-blue-700 hover:bg-blue-500 text-white rounded">
+        <div v-if="isEditing" class="flex justify-end mt-1">
+          <button @click="saveEdit" class="flex items-center space-x-2 px-3 py-1 bg-blue-600 hover:bg-blue-400 text-white rounded">
             保存 (Save)
           </button>
         </div>
