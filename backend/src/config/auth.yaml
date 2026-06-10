@@ -1,2 +1,3 @@
 permission:
-  password: admin123
+  # password: admin123
+  password_hash: "scrypt:32768:8:1$wVBcnk5IJBBl3v6y$9c92158b5d389a87b3096b4de449c63bb6d734e0fbc175f381cf0e6eafadc7f3562dc89b5bd9fea5d8ae173fc718310f81798ffe9b8a9fe1ea9589ebd40df808"

@@ -84,7 +84,10 @@ def create_app():
         auth_config = yaml.safe_load(f)
 
     # Store password in app config
-    app.config['PERMISSION_PASSWORD'] = auth_config['permission']['password']
+    # app.config['PERMISSION_PASSWORD'] = auth_config['permission']['password']
+    app.config["PERMISSION_PASSWORD_HASH"] = (
+       auth_config["permission"]["password_hash"]
+    )
 
     env = os.getenv('ENV', 'DEVELOPMENT')
     db_uri = config[env]['DATABASE_URI']

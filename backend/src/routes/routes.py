@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from src.controllers.inventory_controller import process_inventory_csv
 from src.controllers.status_controller import process_status_csv
 from src.controllers.inventory_availability_controller import process_availability_csv
@@ -19,6 +19,7 @@ from sqlalchemy import text
 from datetime import datetime,timedelta
 from collections import defaultdict
 from flask import current_app, request, jsonify
+from werkzeug.security import check_password_hash
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -418,19 +419,19 @@ def add_imm_setting():
         "基準在庫管理幅": new_row.基準在庫管理幅
     }), 201
 
-@inventory_bp.route('/api/verify-password', methods=['POST'])
-def verify_password():
-    data = request.json
+# @inventory_bp.route('/api/verify-password', methods=['POST'])
+# def verify_password():
+#     data = request.json
 
-    password = data.get('password')
+#     password = data.get('password')
 
-    if password == current_app.config['PERMISSION_PASSWORD']:
-        return jsonify({"success": True})
+#     if password == current_app.config['PERMISSION_PASSWORD']:
+#         return jsonify({"success": True})
 
-    return jsonify({
-        "success": False,
-        "message": "パスワードが正しくありません"
-    }), 401
+#     return jsonify({
+#         "success": False,
+#         "message": "パスワードが正しくありません"
+#     }), 401
 
 
 @inventory_bp.route('/api/imm-setting/<int:id>', methods=['PUT', 'OPTIONS'])
@@ -503,3 +504,18 @@ def delete_imm_setting():
             "message": str(e)
         }), 500
     
+@inventory_bp.route("/api/verify-password", methods=["POST"])
+def verify_password():
+
+    data = request.get_json()
+
+    password = data.get("password", "")
+
+    stored_hash = current_app.config["PERMISSION_PASSWORD_HASH"]
+
+    success = check_password_hash(stored_hash, password)
+
+    return jsonify({
+        "success": success
+    })
+
