@@ -18,6 +18,7 @@ from sqlalchemy import func
 from sqlalchemy import text
 from datetime import datetime,timedelta
 from collections import defaultdict
+from flask import current_app, request, jsonify
 
 inventory_bp = Blueprint('inventory', __name__)
 
@@ -416,3 +417,56 @@ def add_imm_setting():
         "基準在庫日数": new_row.基準在庫日数,
         "基準在庫管理幅": new_row.基準在庫管理幅
     }), 201
+
+@inventory_bp.route('/api/verify-password', methods=['POST'])
+def verify_password():
+    data = request.json
+
+    password = data.get('password')
+
+    if password == current_app.config['PERMISSION_PASSWORD']:
+        return jsonify({"success": True})
+
+    return jsonify({
+        "success": False,
+        "message": "パスワードが正しくありません"
+    }), 401
+
+
+@inventory_bp.route('/api/imm-setting/<int:id>', methods=['PUT', 'OPTIONS'])
+def update_imm_setting(id):
+    if request.method == 'OPTIONS':
+        return jsonify({"success": True}), 200
+    
+    try:
+        data = request.json
+
+        row = IMM_Setting.query.get(id)
+
+        if not row:
+            return jsonify({
+                "success": False,
+                "message": "Record not found"
+            }), 404
+
+        row.在庫管理グループID = data['在庫管理グループID']
+        row.在庫管理グループ名称 = data['在庫管理グループ名称']
+        row.基準在庫日数 = data['基準在庫日数']
+        row.基準在庫管理幅 = data['基準在庫管理幅']
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Updated successfully"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+
+        print("UPDATE ERROR:", str(e))
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500

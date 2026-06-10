@@ -15,7 +15,7 @@
           <PlusIcon class="h-5 w-5 text-white" />
           <span>{{ home.filter.addRow }}</span>
         </button>
-        <button :disabled="selectedRows.length !== 1" @click="startEdit"
+        <button :disabled="selectedRows.length !== 1"  @click="openPermissionModal('edit')"
           class="flex items-center space-x-2 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-500 text-white px-3 py-1 rounded">
           <ArrowPathIcon class="h-5 w-5 text-white" />
           <span>{{ home.filter.editRow }}</span>
@@ -53,7 +53,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in tableData" :key="row.設備機番" class="text-sm" style="background-color:rgb(212 212 212);">
+            <tr v-for="row in tableData" :key="row.id" class="text-sm" style="background-color:rgb(212 212 212);">
               <td class="p-2 border text-center">
                 <input type="checkbox" v-model="selectedRows" :value="row.id" />
               </td>
@@ -131,7 +131,7 @@
             <button @click="closeModal" class="px-4 py-1 rounded bg-zinc-700 hover:bg-zinc-600">キャンセル</button>
             <!-- <button @click="addRow"
               class="px-4 py-1 rounded bg-blue-900 hover:bg-blue-600 text-white transition-colors">追加</button> -->
-            <button @click="openPermissionModal" class="px-4 py-1 rounded bg-blue-900 hover:bg-blue-600 text-white">
+            <button @click="openPermissionModal('add')" class="px-4 py-1 rounded bg-blue-900 hover:bg-blue-600 text-white">
               追加
             </button>
           </div>
@@ -162,7 +162,7 @@
               キャンセル
             </button>
 
-            <button @click="confirmAddRow" class="px-4 py-2 bg-blue-700 rounded hover:bg-blue-500">
+            <button @click="confirmPermission" class="px-4 py-2 bg-blue-700 rounded hover:bg-blue-500">
               OK
             </button>
           </div>
@@ -187,6 +187,8 @@ const selectedRows = ref([])
 
 const isEditing = ref(false)
 const editedRows = ref({})
+
+const permissionAction = ref('')
 
 const newRow = ref({
   設備グループID: '',
@@ -217,7 +219,13 @@ const openModal = () => {
 const closeModal = () => {
   showModal.value = false
 }
-const openPermissionModal = () => {
+
+// const openPermissionModal = () => {
+//   showPermissionModal.value = true
+// }
+
+const openPermissionModal = (action) => {
+  permissionAction.value = action
   showPermissionModal.value = true
 }
 
@@ -226,37 +234,89 @@ const cancelPermission = () => {
   password.value = ''
 }
 
-const confirmAddRow = async () => {
+// const confirmAddRow = async () => {
+//   try {
+//     if (password.value !== 'admin123') {
+//       alert('パスワードが正しくありません')
+//       return
+//     }
+
+//     await axios.post(
+//       'http://localhost:5000/api/imm-setting',
+//       newRow.value
+//     )
+
+//     await fetchData()
+
+//     showPermissionModal.value = false
+//     showModal.value = false
+
+//     password.value = ''
+
+//     newRow.value = {
+//       設備グループID: '',
+//       設備機番: '',
+//       設備グループ名称: '',
+//       在庫管理グループID: '',
+//       在庫管理グループ名称: '',
+//       基準在庫日数: '',
+//       基準在庫管理幅: '',
+//     }
+
+//   } catch (error) {
+//     console.error('Error adding row:', error)
+//   }
+// }
+
+const confirmPermission = async () => {
   try {
-    if (password.value !== 'admin123') {
+    const response = await axios.post(
+      'http://localhost:5000/api/verify-password',
+      {
+        password: password.value
+      }
+    )
+
+    if (!response.data.success) {
       alert('パスワードが正しくありません')
       return
     }
 
-    await axios.post(
-      'http://localhost:5000/api/imm-setting',
-      newRow.value
-    )
-
-    await fetchData()
-
-    showPermissionModal.value = false
-    showModal.value = false
-
-    password.value = ''
-
-    newRow.value = {
-      設備グループID: '',
-      設備機番: '',
-      設備グループ名称: '',
-      在庫管理グループID: '',
-      在庫管理グループ名称: '',
-      基準在庫日数: '',
-      基準在庫管理幅: '',
+    if (permissionAction.value === 'add') {
+      await addRow()
     }
 
+    if (permissionAction.value === 'edit') {
+      startEdit()
+    }
+
+    showPermissionModal.value = false
+    password.value = ''
+
   } catch (error) {
-    console.error('Error adding row:', error)
+    alert('パスワードが正しくありません')
+  }
+}
+
+
+const addRow = async () => {
+  await axios.post(
+    'http://localhost:5000/api/imm-setting',
+    newRow.value
+  )
+
+  await fetchData()
+
+  showModal.value = false
+
+  newRow.value = {
+    設備グループID: '',
+    設備機番: '',
+    設備グループ名称: '',
+    在庫管理グループID: '',
+    在庫管理グループ名称: '',
+    基準在庫日数: '',
+    基準在庫管理幅: '',
   }
 }
 
@@ -300,28 +360,59 @@ const toggleAll = (event) => {
   }
 }
 
+// const startEdit = () => {
+//   if (selectedRows.value.length === 1) {
+//     const rowId = selectedRows.value[0]
+//     const target = tableData.value.find(r => r.id === rowId)
+//     editedRows.value = { ...target }
+//     isEditing.value = true
+//   }
+// }
+
 const startEdit = () => {
   if (selectedRows.value.length === 1) {
     const rowId = selectedRows.value[0]
     const target = tableData.value.find(r => r.id === rowId)
+
+    console.log("Editing row:", target)
+
     editedRows.value = { ...target }
     isEditing.value = true
   }
 }
 
+// const saveEdit = async () => {
+//   try {
+//     await axios.put(`http://localhost:5000/api/imm-setting/${editedRows.value.id}`, editedRows.value)
+
+//     // Update table locally
+//     const idx = tableData.value.findIndex(r => r.id === editedRows.value.id)
+//     if (idx !== -1) {
+//       tableData.value[idx] = { ...editedRows.value }
+//     }
+
+//     isEditing.value = false
+//     editedRows.value = {}
+//     selectedRows.value = []
+//   } catch (error) {
+//     console.error("Error updating data:", error)
+//   }
+// }
+
 const saveEdit = async () => {
   try {
-    await axios.put(`http://localhost:5000/api/imm-setting/${editedRows.value.id}`, editedRows.value)
+    await axios.put(
+      `http://localhost:5000/api/imm-setting/${editedRows.value.id}`,
+      editedRows.value
+    )
 
-    // Update table locally
-    const idx = tableData.value.findIndex(r => r.id === editedRows.value.id)
-    if (idx !== -1) {
-      tableData.value[idx] = { ...editedRows.value }
-    }
+    // Reload from DB
+    await fetchData()
 
     isEditing.value = false
     editedRows.value = {}
     selectedRows.value = []
+
   } catch (error) {
     console.error("Error updating data:", error)
   }
