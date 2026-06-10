@@ -20,7 +20,7 @@
           <ArrowPathIcon class="h-5 w-5 text-white" />
           <span>{{ home.filter.editRow }}</span>
         </button>
-        <button :disabled="selectedRows.length === 0" @click="deleteRows"
+        <button :disabled="selectedRows.length === 0" @click="openPermissionModal('delete')"
           class="flex items-center space-x-2 bg-zinc-800 hover:bg-zinc-700 disabled:bg-zinc-500 text-white px-3 py-1 rounded">
           <XMarkIcon class="h-5 w-5 text-white" />
           <span>{{ home.filter.deleteRow }}</span>
@@ -290,6 +290,17 @@ const confirmPermission = async () => {
       startEdit()
     }
 
+    if(permissionAction.value === 'delete') {
+      const confirmed = confirm(
+        `${selectedRows.value.length} row(s) will be deleted. Continue?`
+      )
+      if(!confirmed){
+        return
+      }
+
+      await deleteRow()
+    }
+
     showPermissionModal.value = false
     password.value = ''
 
@@ -319,6 +330,7 @@ const addRow = async () => {
     基準在庫管理幅: '',
   }
 }
+
 
 // const addRow = async () => {
 //   // // Simulate posting to backend or directly push into table for now
@@ -418,15 +430,16 @@ const saveEdit = async () => {
   }
 }
 
-const deleteRows = async () => {
+const deleteRow = async () => {
   try {
     await axios.post('http://localhost:5000/api/imm-setting/delete', {
       ids: selectedRows.value
     })
 
-    tableData.value = tableData.value.filter(
-      row => !selectedRows.value.includes(row.id)
-    )
+    // tableData.value = tableData.value.filter(
+    //   row => !selectedRows.value.includes(row.id)
+    // )
+    await fetchData()
 
     selectedRows.value = []
   } catch (error) {

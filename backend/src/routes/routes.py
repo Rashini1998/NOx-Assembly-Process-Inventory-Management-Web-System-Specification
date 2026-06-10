@@ -470,3 +470,36 @@ def update_imm_setting(id):
             "success": False,
             "message": str(e)
         }), 500
+
+@inventory_bp.route('/api/imm-setting/delete', methods=['POST'])
+def delete_imm_setting():
+
+    try:
+        data = request.json
+        ids = data.get('ids', [])
+
+        if not ids:
+            return jsonify({
+                "success": False,
+                "message": "No IDs provided"
+            }), 400
+
+        IMM_Setting.query.filter(
+            IMM_Setting.id.in_(ids)
+        ).delete(synchronize_session=False)
+
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": f"{len(ids)} row(s) deleted"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+    
