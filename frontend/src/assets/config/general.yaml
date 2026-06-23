@@ -4,6 +4,7 @@ general:
     select: "一般的なテーブルの選択"
     page01: "リアルタイム中間在庫"
     page02: "リアルタイム棚札ステータス"
+    page03: "在庫管理マスタ設定"
   database: "データベース"
   table: "テーブル名"
   test : "TEST"

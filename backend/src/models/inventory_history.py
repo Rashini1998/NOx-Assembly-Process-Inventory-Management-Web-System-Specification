@@ -39,3 +39,4 @@ class InventoryHistoryNew(db.Model):
     FA端数品 = db.Column(db.SmallInteger)
     外観検査 = db.Column(db.SmallInteger)
     更新日時 = db.Column(db.Unicode(50))
+

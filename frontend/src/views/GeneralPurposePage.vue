@@ -3,11 +3,15 @@
     <div class="min-h-screen">
       <div class="bg-black shadow-md py-4 px-6 flex items-center text-white space-x-3">
         <div class="font-semibold text-xl">{{ home.title }}</div>
-        <select v-model="selectedTable" @change="fetchTableData"
-          class=" text-white font-semibold  px-2 py-1 rounded" :style="{ backgroundColor: pickedColor }">
+        <select v-model="selectedTable" @change="fetchTableData" class=" text-white font-semibold  px-2 py-1 rounded"
+          :style="{ backgroundColor: pickedColor }">
           <option value="" disabled selected>{{ home.selection.select }}</option>
-          <option value="inventory_history">{{ home.title }}-{{ home.selection.page01 }}</option>
+          <!-- <option value="inventory_history">{{ home.title }}-{{ home.selection.page01 }}</option>
           <option value="realtime_shelf_label_status">{{ home.title }}-{{ home.selection.page02 }}</option>
+          <option value="inventory_management_master_setting_screen">{{ home.title }}-{{ home.selection.page03 }}</option> -->
+          <option value="inventory_history">{{ home.selection.page01 }}</option>
+          <option value="realtime_shelf_label_status">{{ home.selection.page02 }}</option>
+          <option value="inventory_management_master_setting_screen">{{ home.selection.page03 }}</option>
         </select>
       </div>
       <div class="bg-black shadow-md py-4 px-3 flex items-center text-white space-x-3">
@@ -26,12 +30,13 @@
         </div>
 
         <div v-else-if="tableData.columns && tableData.columns.length" class="overflow-x-auto">
-          <table class="min-w-full bg-white border border-gray-300 text-center" style="background-color:rgb(212 212 212);">
+          <table class="min-w-full bg-white border border-gray-300 text-center"
+            style="background-color:rgb(212 212 212);">
             <thead>
               <tr>
                 <th v-for="(column, index) in tableData.columns" :key="column"
-                  class="py-2 px-4 border-b border-gray-300 text-center text-sm" 
-                  :class="{ 'border-r border-white': index < tableData.columns.length - 1 }" 
+                  class="py-2 px-4 border-b border-gray-300 text-center text-sm"
+                  :class="{ 'border-r border-white': index < tableData.columns.length - 1 }"
                   style="background-color: rgba(128,128,128,255);">
                   {{ formatHeader(column) }}
                 </th>
@@ -39,9 +44,10 @@
             </thead>
             <tbody>
               <tr v-for="(row, rowIndex) in tableData.data" :key="rowIndex">
-                <td v-for="(column, colIndex) in tableData.columns" :key="column" class="py-2 px-4 border-b border-white" 
-                :class="{ 'border-r border-gray-300': colIndex < tableData.columns.length - 1 }"
-                style="background-color:rgb(212 212 212);">
+                <td v-for="(column, colIndex) in tableData.columns" :key="column"
+                  class="py-2 px-4 border-b border-white"
+                  :class="{ 'border-r border-gray-300': colIndex < tableData.columns.length - 1 }"
+                  style="background-color:rgb(212 212 212);">
                   {{ row[column] }}
                 </td>
               </tr>
@@ -51,16 +57,17 @@
 
         <div v-else class="text-center py-8 text-gray-500">
           <!-- Select a screen from the dropdown to view data -->
-           データを表示するには、ドロップダウンから画面を選択します。
+          データを表示するには、ドロップダウンから画面を選択します。
         </div>
       </div>
     </div>
 
   </header>
 
+
 </template>
 <script setup>
-import { ref, computed,onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import axios from 'axios';
 import TitleBar from '@/components/TitleBar.vue'
 import generalData from '@/assets/config/general.yaml'
@@ -82,7 +89,10 @@ const dynamicTableName = computed(() => {
     return 'nox_assy_wip_inventories_new';
   } else if (selectedTable.value === 'realtime_shelf_label_status') {
     return 'nox_assy_esl_status';
-  } else {
+  } else if (selectedTable.value === 'inventory_management_master_setting_screen') {
+    return 'nox_assy_inv_mgt_master_new';
+  }
+  else {
     return 'N/A'; // Or a default placeholder if no table is selected
   }
 });

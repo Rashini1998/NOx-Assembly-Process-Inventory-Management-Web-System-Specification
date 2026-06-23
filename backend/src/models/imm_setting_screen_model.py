@@ -12,3 +12,17 @@ class IMM_Setting(db.Model):
     在庫管理グループ名称 = db.Column(db.Unicode(50),nullable=False)
     基準在庫日数 = db.Column(db.SmallInteger)
     基準在庫管理幅 = db.Column(db.Unicode(50))
+
+
+class IMM_SettingNEW(db.Model):
+    __tablename__ = 'inventory_management_master_setting_screen'
+
+    id = db.Column(db.Integer, primary_key=True)
+    Equipment_Group_ID = db.Column(db.Unicode(50),nullable=False)
+    Equipment_Number = db.Column(db.Unicode(50),nullable=False)
+    Equipment_Group_Name = db.Column(db.Unicode(50),nullable=False)
+    Inventory_Management_Group_ID = db.Column(db.Unicode(50),nullable=False)
+    Inventory_Management_Group_Name = db.Column(db.Unicode(50),nullable=False)
+    Standard_Inventory_Days = db.Column(db.SmallInteger)
+    Standard_Inventory_Control_Range = db.Column(db.Unicode(50))
+    

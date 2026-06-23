@@ -10,6 +10,7 @@ from src.models.inventory_availability_model import InventoryAvailability
 from src.models.wip_inventories_history_model import WIP_Inventories
 from src.models.IITS_Master_model import IITS_Master
 from src.models.imm_setting_screen_model import IMM_Setting
+from src.models.imm_setting_screen_model import IMM_SettingNEW
 # from src.models.New_Inventory_Master import New_Inventory_Master
 from src import db
 from flask import current_app
@@ -294,6 +295,7 @@ def get_threshold_data():
 def get_dynamic_table():
 
     table_name = request.args.get('table')
+    print("TABLE RECEIVED:", repr(table_name))
     
     if not table_name:
         return jsonify({'error': 'Table name not provided'}), 400
@@ -343,6 +345,24 @@ def get_dynamic_table():
             
             # Get column names from the first record if exists
             columns = list(data[0].keys()) if data else []
+
+        elif table_name == 'inventory_management_master_setting_screen':
+            # Get IMM setting data
+            records = IMM_Setting.query.all()
+            data = []
+            for r in records:
+                data.append({
+                    "設備グループID": r.設備グループID,
+                    "設備機番": r.設備機番,
+                    "設備グループ名称": r.設備グループ名称,
+                    "在庫管理グループID": r.在庫管理グループID,
+                    "在庫管理グループ名称": r.在庫管理グループ名称,
+                    "基準在庫日数": r.基準在庫日数,
+                    "基準在庫管理幅": r.基準在庫管理幅
+                })
+            
+            # Get column names from the first record if exists
+            columns = list(data[0].keys()) if data else []
             
         else:
             return jsonify({'error': 'Invalid table name'}), 400
@@ -373,23 +393,6 @@ def get_imm_setting():
             "基準在庫管理幅": r.基準在庫管理幅
         })
     return jsonify(data)
-    
-
-# @inventory_bp.route('/api/imm-setting', methods=['POST'])
-# def add_imm_setting():
-#     data = request.json
-#     new_row = IMM_Setting(
-#         設備グループID=data['設備グループID'],
-#         設備機番=data['設備機番'],
-#         設備グループ名称=data['設備グループ名称'],
-#         在庫管理グループID=data['在庫管理グループID'],
-#         在庫管理グループ名称=data['在庫管理グループ名称'],
-#         基準在庫日数=data['基準在庫日数'],
-#         基準在庫管理幅=data.get('基準在庫管理幅')
-#     )
-#     db.session.add(new_row)
-#     db.session.commit()
-#     return jsonify({'message': 'Row added successfully'}), 201
 
 @inventory_bp.route('/api/imm-setting', methods=['POST'])
 def add_imm_setting():
@@ -418,21 +421,6 @@ def add_imm_setting():
         "基準在庫日数": new_row.基準在庫日数,
         "基準在庫管理幅": new_row.基準在庫管理幅
     }), 201
-
-# @inventory_bp.route('/api/verify-password', methods=['POST'])
-# def verify_password():
-#     data = request.json
-
-#     password = data.get('password')
-
-#     if password == current_app.config['PERMISSION_PASSWORD']:
-#         return jsonify({"success": True})
-
-#     return jsonify({
-#         "success": False,
-#         "message": "パスワードが正しくありません"
-#     }), 401
-
 
 @inventory_bp.route('/api/imm-setting/<int:id>', methods=['PUT', 'OPTIONS'])
 def update_imm_setting(id):
@@ -518,4 +506,3 @@ def verify_password():
     return jsonify({
         "success": success
     })
-
